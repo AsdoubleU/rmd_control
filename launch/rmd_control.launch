@@ -1,0 +1,3 @@
+<launch>
+  <node name="rmd_control" pkg="rmd_control" type="rmd_control" output="screen"/>
+</launch>
