@@ -1,5 +1,6 @@
 #include "rmd_motor.h"
 #include "motor_controller.h"
+#include <iostream>
 
 rmd_motor::rmd_motor()
 {
@@ -7,6 +8,7 @@ rmd_motor::rmd_motor()
 }
 
 void rmd_motor::UpdateRxData(void) {
+
     joint_temperature = (int)(feedback_data[1]);
     
     int temp_torque = (int)(feedback_data[2] | (feedback_data[3]<<8));

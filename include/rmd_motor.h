@@ -5,7 +5,6 @@
 #include <math.h>
 #include "rmd_can.h"
 #include "rt_utils.h"
-#include "dynamics.h"
 
 class rmd_motor
 {

@@ -27,8 +27,8 @@ void Motor_Controller::EnableMotor()
 {
   // SPI 1.0  CH A
   sharedData->rmd_motor_run_flag[0] = true;  
-  sharedData->rmd_motor_run_flag[1] = true;     
-  sharedData->rmd_motor_run_flag[2] = true;    
+  sharedData->rmd_motor_run_flag[1] = false;  
+  sharedData->rmd_motor_run_flag[2] = false; 
   //          CH B
   sharedData->rmd_motor_run_flag[3] = false;     
   sharedData->rmd_motor_run_flag[4] = false;     
@@ -82,31 +82,6 @@ VectorXd Motor_Controller::GetThetaDotSMAF()
 
   return th_dot_sma_filtered;
 }
-
-VectorXd Motor_Controller::GeThetaDofLP()
-{
-  for(uint8_t i=0; i<NUM_OF_RMD; i++) 
-  {
-    th_dot[i] = _DEV_MC[i].GetThetaDot();
-    old_th_dot[i] = th_dot[i];
-  }
-  filtered_th_dot[0] = ((1-2*PI*10*0.002)*old_th_dot[0]) + 2*PI*10*0.002*th_dot[0];
-  filtered_th_dot[1] = ((1-2*PI*10*0.002)*old_th_dot[1]) + 2*PI*10*0.002*th_dot[1];
-  filtered_th_dot[2] = ((1-2*PI*10*0.002)*old_th_dot[2]) + 2*PI*10*0.002*th_dot[2];
-  filtered_th_dot[3] = ((1-2*PI*10*0.002)*old_th_dot[3]) + 2*PI*10*0.002*th_dot[3];
-  filtered_th_dot[4] = ((1-2*PI*10*0.002)*old_th_dot[4]) + 2*PI*10*0.002*th_dot[4];
-  filtered_th_dot[5] = ((1-2*PI*10*0.002)*old_th_dot[5]) + 2*PI*10*0.002*th_dot[5];
-
-  filtered_th_dot[6] = ((1-2*PI*10*0.002)*old_th_dot[6]) + 2*PI*10*0.002*th_dot[6];
-  filtered_th_dot[7] = ((1-2*PI*10*0.002)*old_th_dot[7]) + 2*PI*10*0.002*th_dot[7];
-  filtered_th_dot[8] = ((1-2*PI*10*0.002)*old_th_dot[8]) + 2*PI*10*0.002*th_dot[8];
-  filtered_th_dot[9] = ((1-2*PI*10*0.002)*old_th_dot[9]) + 2*PI*10*0.002*th_dot[9];
-  filtered_th_dot[10] = ((1-2*PI*10*0.002)*old_th_dot[10]) + 2*PI*10*0.002*th_dot[10];
-  filtered_th_dot[11] = ((1-2*PI*10*0.002)*old_th_dot[11]) + 2*PI*10*0.002*th_dot[11];
-
-  return filtered_th_dot;
-}
-
 
 VectorXd Motor_Controller::GetTorque()
 {

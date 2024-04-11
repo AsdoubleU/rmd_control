@@ -6,6 +6,7 @@
 #include <string.h>
 #include <vector>
 #include "motor_controller.h"
+#include "callback.h"
 
 #define RMD_COUNT 5
 
@@ -25,13 +26,14 @@ spi2can::spi2can()
     spi_1_fd = -1;
     spi_2_fd = -1;
 
-    if(init_spi() != 0){
-        cout << "init spi failed" << endl;
-    }
-    else cout << "init spi succeed" << endl;
+    std::cout<<std::endl;
+    if(init_spi() != 0){ ROS_ERROR("init spi failed"); }
+    else ROS_INFO("init spi succeed");
 
     thread_id = generate_rt_thread_hard(thread_handler, spi2can_thread, "spi2can", 2, 98, this);
-    cout << "spi2can_thread id: " << thread_id << endl;
+    ROS_INFO("spi2can_thread id: %d",thread_id);
+    std::cout<<std::endl;
+
 #endif
 }
 
@@ -44,7 +46,6 @@ void *spi2can::spi2can_thread(void *arg){
 
     unsigned int tt = 0;
     spi2can *spi = (spi2can*)arg;
-
 
     struct spi_ioc_transfer spi_tr1;
     struct spi_ioc_transfer spi_tr2;
@@ -124,8 +125,7 @@ void *spi2can::spi2can_thread(void *arg){
 
         //  SPI1(CAN CH A, B or 0, 1), CAN Recieve status
         while(recv_buf1.size() >= 12){
-            if(uchar(recv_buf1[0]) == 0x89){
-                std::cout<<"Recieved!!"<<std::endl;
+            if(uchar(recv_buf1[0]) == 0x89 || uchar(recv_buf1[0]) == 0x77){
                 int dlc = recv_buf1[1];
                 unsigned int id = ((ushort)(recv_buf1[2]) | (ushort)(recv_buf1[3]<<8));
                 unsigned char recv_data1[8];
@@ -179,7 +179,7 @@ void *spi2can::spi2can_thread(void *arg){
         
         clock_gettime(CLOCK_REALTIME, &TIME_NOW);
         timespec_add_us(&TIME_NEXT, PERIOD_US);
-        if(timespec_cmp(&TIME_NOW, &TIME_NEXT) > 0) cout << "RT Deadline Miss, SPI " << ++dead_miss_cnt << endl;
+        if(timespec_cmp(&TIME_NOW, &TIME_NEXT) > 0) ROS_WARN("RT Deadline Miss, SPI %ldtimes",++dead_miss_cnt);
         clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &TIME_NEXT, NULL);
     }
 }

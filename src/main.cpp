@@ -1,6 +1,5 @@
 #include "spi2can.h"
 #include "rt_utils.h"
-#include "dynamics.h"
 #include "motor_controller.h"
 #include "callback.h"
 
@@ -25,13 +24,9 @@ int main(int argc, char *argv[])
 
     int thread_id_motion = generate_rt_thread(thread_motion, rt_motion_thread, "motion_thread", 3, 95, NULL);
 
-    std::vector<std::string> joints_name = {"j1", "j2", "j3", "j4", "j5", "j6", "j1", "j2", "j3", "j4", "j5", "j6"};
-
     while(ros::ok())
     {
         sensor_msgs::JointState msg;
-        geometry_msgs::Pose ee_pose_msg;
-        geometry_msgs::Pose ref_ee_pose_msg;
        
         msg.header.stamp = ros::Time::now();
 
@@ -60,7 +55,6 @@ void *rt_motion_thread(void *arg){
         if(is_first_loop){
             motor_ctrl.EnableMotor();
             motor_ctrl.SetTorque(1);
-            // motor_ctrl.EnableFilter();//first motor setting function
 
             timespec_add_us(&TIME_NEXT, 4 * 1000 * 1000);
             is_first_loop = false;
@@ -68,22 +62,20 @@ void *rt_motion_thread(void *arg){
         }
         else if(loop_count > 1000){
             loop_count++;
-            // motor_ctrl.EnableFilter();//first motor setting function
 
             if(comm_loop_count > 500 && is_print_comm_frequency) {
                 comm_loop_count = 1;
                 if(comm_loop_count_time_sec < 120)
                 {
                     // std::cout<<_DEV_MC[0].GetTheta()<<std::endl;
-                    std::cout<<"[HRRLab Hexapod Info] : "<<"Reception Count for the nth motor"<<std::endl<<std::endl;
+                    ROS_INFO("Reception Count for the nth motor");
                     comm_loop_count_time_sec++;
                     for(int i = 0; i < NUM_OF_RMD; i++ )
                     {
-                        std::cout << i << ": " << _DEV_MC[i].count << "     " ;
+                        ROS_INFO("%dth --> %d times",i,_DEV_MC[i].count);
                         _DEV_MC[i].count = 0; _DEV_MC[i].count_A1 = 0;
-                        if(i%6 == 0){ std::cout<<std::endl; }
                     }
-                    std::cout << " " << std::endl;
+                    std::cout<<std::endl;
                 }
                 else is_print_comm_frequency = false;
             }
@@ -93,10 +85,7 @@ void *rt_motion_thread(void *arg){
 
         clock_gettime(CLOCK_REALTIME, &TIME_NOW);
         timespec_add_us(&TIME_NEXT, PERIOD_US);
-
         clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &TIME_NEXT, NULL);
-        if(timespec_cmp(&TIME_NOW, &TIME_NEXT) > 0){
-            std::cout << "RT Deadline Miss, main controller :  " << timediff_us(&TIME_NEXT, &TIME_NOW)*0.001<<" ms"<< std::endl;
-        }
+        if(timespec_cmp(&TIME_NOW, &TIME_NEXT) > 0){ ROS_ERROR("RT Deadline Miss, main controller : %.3f ms",timediff_us(&TIME_NEXT, &TIME_NOW)*0.001); }
     }
 }

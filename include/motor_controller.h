@@ -2,7 +2,6 @@
 #define MOTOR_CONTROLLER_H
 
 #include "shared_memory.h"
-#include "dynamics.h"
 
 #define   DATA_TO_RADIAN_V3_20b   41721.5134018818109
 #define   DATA_TO_RADIAN_V3   2607.435432674516
@@ -40,7 +39,6 @@ public:
   VectorXd GetThetaDot();
   VectorXd GetThetaDotEst();
   VectorXd GetThetaDotSMAF();
-  VectorXd GeThetaDofLP();
   VectorXd GetTorque();
   void ReadTheta();    
   void SetTorque(VectorXd tau);
@@ -48,8 +46,6 @@ public:
   void SetPosition(VectorXd theta);  
   void EnableMotor();
   void EnableFilter();
-  void WriteInnerGainP();
-  void WriteInnerGainI();
   void ReadCurrentLoopPI();
 };
 
