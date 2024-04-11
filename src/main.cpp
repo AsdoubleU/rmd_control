@@ -7,7 +7,6 @@
 static void *rt_motion_thread(void *arg);
 pRBCORE_SHM sharedData;
 rmd_motor _DEV_MC[NUM_OF_RMD];
-Dynamics::RobotDynamics dynamics;
 Motor_Controller motor_ctrl;
 Callback callback;
 
@@ -36,14 +35,6 @@ int main(int argc, char *argv[])
        
         msg.header.stamp = ros::Time::now();
 
-        for (uint8_t i = 0; i<NUM_OF_RMD; i ++)
-        {
-            msg.name.push_back(joints_name.at(i));
-            msg.position.push_back(dynamics.th[i]);//actual angle
-            msg.velocity.push_back(dynamics.filtered_th_dot[i]);//filtered angular speed * RAD2DEG
-            msg.effort.push_back(dynamics.joint_torque[i]);//reference torque
-        }
-
         ros::spinOnce();
         loop_rate.sleep();
     }
@@ -68,7 +59,7 @@ void *rt_motion_thread(void *arg){
 
         if(is_first_loop){
             motor_ctrl.EnableMotor();
-            // motor_ctrl.SetTorque(10);
+            motor_ctrl.SetTorque(1);
             // motor_ctrl.EnableFilter();//first motor setting function
 
             timespec_add_us(&TIME_NEXT, 4 * 1000 * 1000);
@@ -77,13 +68,13 @@ void *rt_motion_thread(void *arg){
         }
         else if(loop_count > 1000){
             loop_count++;
-            // dynamics.Loop();
             // motor_ctrl.EnableFilter();//first motor setting function
 
             if(comm_loop_count > 500 && is_print_comm_frequency) {
                 comm_loop_count = 1;
                 if(comm_loop_count_time_sec < 120)
                 {
+                    // std::cout<<_DEV_MC[0].GetTheta()<<std::endl;
                     std::cout<<"[HRRLab Hexapod Info] : "<<"Reception Count for the nth motor"<<std::endl<<std::endl;
                     comm_loop_count_time_sec++;
                     for(int i = 0; i < NUM_OF_RMD; i++ )

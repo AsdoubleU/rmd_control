@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(RBDL REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -33,7 +32,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
-  ${RBDL_INCLUDE_DIR}
 )
 
 
@@ -52,7 +50,6 @@ add_executable(
   src/spi2can.cpp
   src/rmd_motor.cpp
   src/motor_controller.cpp
-  src/dynamics.cpp
   src/callback.cpp)
 add_dependencies(rmd_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(rmd_control ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} Qt5::Core ${RBDL_LIBRARY})

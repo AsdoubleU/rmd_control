@@ -142,15 +142,3 @@ void Motor_Controller::EnableFilter(){
     _DEV_MC[i].EnableFilter();
   }
 }
-
-
-void Motor_Controller::WriteInnerGainP(){
-  uint8_t i =4;
-  _DEV_MC[i].WriteInnerGainP();
-}
-
-
-void Motor_Controller::WriteInnerGainI(){
-  uint8_t i =4;
-  _DEV_MC[i].WriteInnerGainI();
-}

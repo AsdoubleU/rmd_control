@@ -1,6 +1,5 @@
 #include "rmd_motor.h"
 #include "motor_controller.h"
-extern Dynamics::RobotDynamics dynamics;
 
 rmd_motor::rmd_motor()
 {
@@ -129,34 +128,4 @@ void rmd_motor::EnableMotor()
     reference_data[5] = 0x00 & 0xFF;
     reference_data[6] = 0x00 & 0xFF;
     reference_data[7] = 0x00 & 0xFF;
-}
-
-
-void rmd_motor::WriteInnerGainP()
-{
-    long param = dynamics.inner_gain_p;
-
-    reference_data[0] = 0x40 & 0xFF;
-    reference_data[1] = 0x00 & 0xFF;
-    reference_data[2] = 0x00 & 0xFF;
-    reference_data[3] = 0x00 & 0xFF;
-    reference_data[4] = (param      ) & 0xFF;
-    reference_data[5] = (param >> 8 ) & 0xFF;
-    reference_data[6] = (param >> 16) & 0xFF;
-    reference_data[7] = (param >> 24) & 0xFF;
-}
-
-
-void rmd_motor::WriteInnerGainI()
-{
-    long param = dynamics.inner_gain_i;
-
-    reference_data[0] = 0x41 & 0xFF;
-    reference_data[1] = 0x00 & 0xFF;
-    reference_data[2] = 0x00 & 0xFF;
-    reference_data[3] = 0x00 & 0xFF;
-    reference_data[4] = (param      ) & 0xFF;
-    reference_data[5] = (param >> 8 ) & 0xFF;
-    reference_data[6] = (param >> 16) & 0xFF;
-    reference_data[7] = (param >> 24) & 0xFF;
 }

@@ -35,8 +35,6 @@ public:
     void    EnableMotor();
     void    DisableMotor();
     void    EnableFilter();
-    void    WriteInnerGainP();
-    void    WriteInnerGainI();
     void    UpdateRxData(void);
     void    UpdateRxData2(void);
     void    SetTorqueData(float);

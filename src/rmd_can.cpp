@@ -11,7 +11,7 @@ rmd_can::rmd_can()
 {
     //  spi 1.0
     //  channel a
-    reference_msg[0].header = 0x89;     reference_msg[0].id = 0x140;
+    reference_msg[0].header = 0x89;     reference_msg[0].id = 0x14c;
     reference_msg[1].header = 0x89;     reference_msg[1].id = 0x141;
     reference_msg[2].header = 0x89;     reference_msg[2].id = 0x142;
     //  channel b

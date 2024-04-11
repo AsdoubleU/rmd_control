@@ -125,6 +125,7 @@ void *spi2can::spi2can_thread(void *arg){
         //  SPI1(CAN CH A, B or 0, 1), CAN Recieve status
         while(recv_buf1.size() >= 12){
             if(uchar(recv_buf1[0]) == 0x89){
+                std::cout<<"Recieved!!"<<std::endl;
                 int dlc = recv_buf1[1];
                 unsigned int id = ((ushort)(recv_buf1[2]) | (ushort)(recv_buf1[3]<<8));
                 unsigned char recv_data1[8];
@@ -134,7 +135,7 @@ void *spi2can::spi2can_thread(void *arg){
                 if(id>=0x140 && id<=0x240+RMD_COUNT){
                     int bno = 0;
                     if(id>=0x240) bno = id-0x240;
-                    else bno = id-0x140;
+                    else bno = id-0x0000014c;
                     _DEV_MC[bno].count++;
                     if(recv_data1[0] == 0xA1){ 
                         for(int j=0; j<dlc; j++) _DEV_MC[bno].feedback_data[j] = recv_data1[j];
