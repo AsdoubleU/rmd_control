@@ -2,11 +2,17 @@
 
 echo ""
 echo "This script runs 'sudo chmod 666 /dev/spidev0.0 /dev/spidev0.1' "
-echo "to facilitate bringing up the STOB CANBUS connection."
+echo "to facilitate bringing up the RMD motor CANBUS connection."
 echo ""
 
-sudo chmod 666 /dev/spidev0.0 /dev/spidev0.1
+# sudo chmod 666 /dev/spidev0.0 /dev/spidev0.1
+if sudo -S chmod 666 /dev/spidev0.0 /dev/spidev0.1; then
+    echo ""
+    echo "Permission granted. Operating RMD motor Controller"
+    echo ""
+    roslaunch rmd_control operate_node.launch
+    
+else
+    echo "Failed to acquire permissions."
+fi
 
-echo ""
-echo "Ready!"
-echo ""

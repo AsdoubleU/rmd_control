@@ -32,12 +32,9 @@ public:
   Motor_Controller();
   //~Motor_Controller();
 
-  VectorXd GetThetaX();
-  VectorXd GetThetaL();
   VectorXd GetTheta();
   VectorXd GetJointTheta();
   VectorXd GetThetaDot();
-  VectorXd GetThetaDotEst();
   VectorXd GetThetaDotSMAF();
   VectorXd GetTorque();
   void ReadTheta();    
@@ -46,7 +43,6 @@ public:
   void SetPosition(VectorXd theta);  
   void EnableMotor();
   void EnableFilter();
-  void ReadCurrentLoopPI();
 };
 
 

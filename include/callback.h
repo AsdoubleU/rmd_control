@@ -6,11 +6,7 @@
 #include "spi2can.h"
 #include "rt_utils.h"
 #include "ros/ros.h"
-#include "sensor_msgs/JointState.h"
 #include "motor_controller.h"
-#include "std_msgs/Float32.h"
-#include "std_msgs/Float32MultiArray.h"
-#include "std_msgs/Bool.h"
 
 class Callback
 {

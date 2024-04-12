@@ -9,6 +9,7 @@ rmd_motor _DEV_MC[NUM_OF_RMD];
 Motor_Controller motor_ctrl;
 Callback callback;
 
+
 int main(int argc, char *argv[])
 {
     ros::init(argc, argv, "rmd_control");
@@ -26,12 +27,12 @@ int main(int argc, char *argv[])
 
     while(ros::ok())
     {
-        sensor_msgs::JointState msg;
        
-        msg.header.stamp = ros::Time::now();
+        ros::Time current_time = ros::Time::now();
 
         ros::spinOnce();
         loop_rate.sleep();
+        
     }
     return 0;
 }
@@ -41,9 +42,9 @@ void *rt_motion_thread(void *arg){
     const long PERIOD_US = RT_MS * 1000;
     struct timespec TIME_NEXT;
     struct timespec TIME_NOW;
-    int loop_count = 0;
-    int comm_loop_count = 0;
-    int comm_loop_count_time_sec = 0;
+    int thread_loop_count = 0;
+    int motion_count = 0;
+    int motion_count_time_sec = 0;
     bool is_print_comm_frequency = true;
 
     clock_gettime(CLOCK_REALTIME, &TIME_NEXT);
@@ -58,18 +59,18 @@ void *rt_motion_thread(void *arg){
 
             timespec_add_us(&TIME_NEXT, 4 * 1000 * 1000);
             is_first_loop = false;
-            loop_count++;
+            thread_loop_count++;
         }
-        else if(loop_count > 1000){
-            loop_count++;
 
-            if(comm_loop_count > 500 && is_print_comm_frequency) {
-                comm_loop_count = 1;
-                if(comm_loop_count_time_sec < 120)
+        else if(thread_loop_count > 1000){
+
+            if(motion_count > 500 && is_print_comm_frequency) {
+                motion_count = 1;
+                if(motion_count_time_sec < 120)
                 {
                     // std::cout<<_DEV_MC[0].GetTheta()<<std::endl;
+                    motion_count_time_sec++;
                     ROS_INFO("Reception Count for the nth motor");
-                    comm_loop_count_time_sec++;
                     for(int i = 0; i < NUM_OF_RMD; i++ )
                     {
                         ROS_INFO("%dth --> %d times",i,_DEV_MC[i].count);
@@ -79,13 +80,16 @@ void *rt_motion_thread(void *arg){
                 }
                 else is_print_comm_frequency = false;
             }
-            if(is_print_comm_frequency) comm_loop_count++;
+            if(is_print_comm_frequency) motion_count++;
+
+            thread_loop_count++;
         }
-        else loop_count++;
+
+        else thread_loop_count++;
 
         clock_gettime(CLOCK_REALTIME, &TIME_NOW);
         timespec_add_us(&TIME_NEXT, PERIOD_US);
         clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &TIME_NEXT, NULL);
-        if(timespec_cmp(&TIME_NOW, &TIME_NEXT) > 0){ ROS_ERROR("RT Deadline Miss, main controller : %.3f ms",timediff_us(&TIME_NEXT, &TIME_NOW)*0.001); }
+        if(timespec_cmp(&TIME_NOW, &TIME_NEXT) > 0) ROS_ERROR("RT Deadline Miss, main controller : %.3f ms",timediff_us(&TIME_NEXT, &TIME_NOW)*0.001); 
     }
 }
