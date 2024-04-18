@@ -110,6 +110,23 @@ void rmd_motor::SetTorqueData(float tau)
 
 }
 
+void rmd_motor::SetVelocityData(float vel)
+{
+    // if(tau > actuator_torque_limit) tau = actuator_torque_limit;
+    // else if(tau < -1 * actuator_torque_limit) tau = -1 * actuator_torque_limit;
+    
+    long param = actuator_direction * torque_to_data * vel;
+    reference_data[0] = 0xA2 & 0xFF;
+    reference_data[1] = 0x00 & 0xFF;
+    reference_data[2] = 0x00 & 0xFF;
+    reference_data[3] = 0x00 & 0xFF;
+    reference_data[4] = (param     ) & 0xFF;
+    reference_data[5] = (param >> 8) & 0xFF;
+    reference_data[6] = (param >> 16) & 0xFF;
+    reference_data[7] = (param >> 24) & 0xFF;
+
+}
+
 // ID 0x20 0x02 0x00 0x00 0x01 0x00 0x00 0x00
 void rmd_motor::EnableFilter()
 {

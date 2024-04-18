@@ -76,7 +76,8 @@ void *rt_motion_thread(void *arg){
 
         else if(thread_loop_count > 1000){
 
-            motor_ctrl.SetTorque( 10.*sin(control_time/0.3) );
+            // motor_ctrl.SetTorque( 10.*sin(control_time/0.3) );
+            // _DEV_MC[0].SetVelocityData(100000*sin(control_time));
 
             if(motion_count > 500 && is_print_comm_frequency) {
                 motion_count = 1;

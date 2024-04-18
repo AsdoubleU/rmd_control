@@ -37,6 +37,7 @@ public:
     void    UpdateRxData(void);
     void    UpdateRxData2(void);
     void    SetTorqueData(float);
+    void    SetVelocityData(float);
     float   GetTheta();
     float   GetThetaV3();
     float   GetThetaDot();
