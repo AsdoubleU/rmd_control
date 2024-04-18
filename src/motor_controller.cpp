@@ -5,7 +5,14 @@ extern rmd_motor _DEV_MC[NUM_OF_RMD];
 
 Motor_Controller::Motor_Controller()
 {
-  _DEV_MC[0].actuator_direction =  -1;     _DEV_MC[0].actuator_gear_ratio = 9;   _DEV_MC[0].joint_initial_position = 0;     _DEV_MC[0].torque_to_data = 24.5;    _DEV_MC[0].actuator_torque_limit = 3.5*2;     _DEV_MC[0].data_to_radian = DATA_TO_RADIAN_V3;      _DEV_MC[0].is_v3 = true; 
+  _DEV_MC[0].actuator_direction =  -1;
+  _DEV_MC[0].actuator_gear_ratio = 1.;   
+  _DEV_MC[0].joint_initial_position = 0;     
+  _DEV_MC[0].torque_to_data = 24.5;    
+  _DEV_MC[0].actuator_torque_limit = 3.5*2;     
+  _DEV_MC[0].data_to_radian = DATA_TO_RADIAN;
+  _DEV_MC[0].is_v3 = true; 
+
   // _DEV_MC[1].actuator_direction =  -1;     _DEV_MC[1].actuator_gear_ratio = 9;   _DEV_MC[1].joint_initial_position = -0.31420;     _DEV_MC[1].torque_to_data = 24.5;     _DEV_MC[1].actuator_torque_limit = 18*2;       _DEV_MC[1].data_to_radian = DATA_TO_RADIAN_V3;      _DEV_MC[1].is_v3 = true;  //-0.22959;
   // _DEV_MC[2].actuator_direction =  1;     _DEV_MC[2].actuator_gear_ratio = 36;  _DEV_MC[2].joint_initial_position = 0.31455;     _DEV_MC[2].torque_to_data = 24.5;     _DEV_MC[2].actuator_torque_limit = 9*2;       _DEV_MC[2].data_to_radian = DATA_TO_RADIAN_V3_20b;      _DEV_MC[2].is_v3 = true;
   // _DEV_MC[3].actuator_direction =  -1;     _DEV_MC[3].actuator_gear_ratio = 36;  _DEV_MC[3].joint_initial_position = -0.897273;     _DEV_MC[3].torque_to_data = 24.5;     _DEV_MC[3].actuator_torque_limit = 18*2;      _DEV_MC[3].data_to_radian = DATA_TO_RADIAN_V3_20b;      _DEV_MC[3].is_v3 = true; //

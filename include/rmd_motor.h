@@ -49,6 +49,8 @@ private:
     float   joint_temperature;
 
     float   motor_theta_last;
+    float   temp_encoder_last;
+    float   count_overflow;
 
     float   joint_theta_92;
     float   joint_theta_offset_92;

@@ -45,6 +45,7 @@ void *rt_motion_thread(void *arg){
     int thread_loop_count = 0;
     int motion_count = 0;
     int motion_count_time_sec = 0;
+    double control_time = 0.;
     bool is_print_comm_frequency = true;
 
     clock_gettime(CLOCK_REALTIME, &TIME_NEXT);
@@ -52,10 +53,11 @@ void *rt_motion_thread(void *arg){
     bool is_first_loop = true;
 
     while(true){
+        
+        control_time = thread_loop_count/500;
 
         if(is_first_loop){
             motor_ctrl.EnableMotor();
-            motor_ctrl.SetTorque(1);
 
             timespec_add_us(&TIME_NEXT, 4 * 1000 * 1000);
             is_first_loop = false;
@@ -64,11 +66,13 @@ void *rt_motion_thread(void *arg){
 
         else if(thread_loop_count > 1000){
 
+            motor_ctrl.SetTorque( 10.*sin(control_time/0.2) );
+            std::cout<<"Angle : "<<_DEV_MC[0].GetTheta()<<std::endl;
+
             if(motion_count > 500 && is_print_comm_frequency) {
                 motion_count = 1;
                 if(motion_count_time_sec < 120)
                 {
-                    // std::cout<<_DEV_MC[0].GetTheta()<<std::endl;
                     motion_count_time_sec++;
                     ROS_INFO("Reception Count for the nth motor");
                     for(int i = 0; i < NUM_OF_RMD; i++ )

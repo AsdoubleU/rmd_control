@@ -3,9 +3,7 @@
 
 #include "shared_memory.h"
 
-#define   DATA_TO_RADIAN_V3_20b   41721.5134018818109
-#define   DATA_TO_RADIAN_V3   2607.435432674516
-#define   DATA_TO_RADIAN_V2   10430.21970545193
+#define   DATA_TO_RADIAN 1.065329236946157e-5
 #define   FILTER_WINDOW_SIZE  20
 #define   NUM_OF_ACTUATORS    1
 #define   NUM_OF_RMD          1

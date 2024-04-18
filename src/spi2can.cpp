@@ -139,7 +139,7 @@ void *spi2can::spi2can_thread(void *arg){
                     _DEV_MC[bno].count++;
                     if(recv_data1[0] == 0xA1){ 
                         for(int j=0; j<dlc; j++) _DEV_MC[bno].feedback_data[j] = recv_data1[j];
-                        if(_DEV_MC[bno].data_to_radian == DATA_TO_RADIAN_V3)  _DEV_MC[bno].UpdateRxData();
+                        if(_DEV_MC[bno].data_to_radian == DATA_TO_RADIAN)  _DEV_MC[bno].UpdateRxData();
                         else _DEV_MC[bno].UpdateRxData2();
                         _DEV_MC[bno].count_A1++;
                     }
