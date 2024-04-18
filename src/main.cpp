@@ -2,6 +2,7 @@
 #include "rt_utils.h"
 #include "motor_controller.h"
 #include "callback.h"
+#include "ros_plot.h"
 
 static void *rt_motion_thread(void *arg);
 pRBCORE_SHM sharedData;
@@ -25,10 +26,19 @@ int main(int argc, char *argv[])
 
     int thread_id_motion = generate_rt_thread(thread_motion, rt_motion_thread, "motion_thread", 3, 95, NULL);
 
+    p_angle = node_handle_.advertise<std_msgs::Float64>("/Angle/",1);
+    p_angular_velocity = node_handle_.advertise<std_msgs::Float64>("/Angular_Velocity/",1);
+    p_torque = node_handle_.advertise<std_msgs::Float64>("/Torque/",1);
+
     while(ros::ok())
     {
-       
         ros::Time current_time = ros::Time::now();
+
+        m_angle.data = _DEV_MC[0].GetTheta()*RAD2DEG;
+        m_angular_velocity.data = _DEV_MC[0].GetThetaDot();
+
+        p_angle.publish(m_angle);
+        p_angular_velocity.publish(m_angular_velocity);
 
         ros::spinOnce();
         loop_rate.sleep();
@@ -66,8 +76,7 @@ void *rt_motion_thread(void *arg){
 
         else if(thread_loop_count > 1000){
 
-            motor_ctrl.SetTorque( 10.*sin(control_time/0.2) );
-            std::cout<<"Angle : "<<_DEV_MC[0].GetTheta()<<std::endl;
+            motor_ctrl.SetTorque( 10.*sin(control_time/0.3) );
 
             if(motion_count > 500 && is_print_comm_frequency) {
                 motion_count = 1;
