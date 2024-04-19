@@ -4,6 +4,8 @@ ROS package for Control RMD motor with VESC
 
 ### Build examples
 ```bash
+cd your/workspace/path/src
+git clone https://github.com/AsdoubleU/rmd_control.git
 cd your/workspace/path
 catkin_make
 roslaunch rmd_control rmd_control.launch
