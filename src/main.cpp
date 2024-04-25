@@ -4,6 +4,10 @@
 #include "callback.h"
 #include "ros_plot.h"
 
+float reference;
+float ddot_old;
+float filter_old;
+
 static void *rt_motion_thread(void *arg);
 pRBCORE_SHM sharedData;
 rmd_motor _DEV_MC[NUM_OF_RMD];
@@ -26,9 +30,10 @@ int main(int argc, char *argv[])
 
     int thread_id_motion = generate_rt_thread(thread_motion, rt_motion_thread, "motion_thread", 3, 95, NULL);
 
-    p_angle = node_handle_.advertise<std_msgs::Float64>("/Angle/",1);
-    p_angular_velocity = node_handle_.advertise<std_msgs::Float64>("/Angular_Velocity/",1);
-    p_torque = node_handle_.advertise<std_msgs::Float64>("/Torque/",1);
+    p_angle = node_handle_.advertise<std_msgs::Float64>("/angle/",1);
+    p_angular_velocity = node_handle_.advertise<std_msgs::Float64>("/angular_velocity/",1);
+    p_torque = node_handle_.advertise<std_msgs::Float64>("/torque/",1);
+    p_reference = node_handle_.advertise<std_msgs::Float64>("/reference/",1);
 
     while(ros::ok())
     {
@@ -36,9 +41,13 @@ int main(int argc, char *argv[])
 
         m_angle.data = _DEV_MC[0].GetTheta()*RAD2DEG;
         m_angular_velocity.data = _DEV_MC[0].GetThetaDot();
+        m_torque.data = _DEV_MC[0].GetTorque();
+        m_reference.data = reference;
 
         p_angle.publish(m_angle);
         p_angular_velocity.publish(m_angular_velocity);
+        p_torque.publish(m_torque);
+        p_reference.publish(m_reference);
 
         ros::spinOnce();
         loop_rate.sleep();
@@ -63,8 +72,7 @@ void *rt_motion_thread(void *arg){
     bool is_first_loop = true;
 
     while(true){
-        
-        control_time = thread_loop_count/500;
+        control_time = thread_loop_count/500.;
 
         if(is_first_loop){
             motor_ctrl.EnableMotor();
@@ -76,8 +84,9 @@ void *rt_motion_thread(void *arg){
 
         else if(thread_loop_count > 1000){
 
-            // motor_ctrl.SetTorque( 10.*sin(control_time/0.3) );
-            // _DEV_MC[0].SetVelocityData(100000*sin(control_time));
+            // motor_ctrl.SetTorque( 0.6*sin(control_time/0.3) );
+            _DEV_MC[0].SetTorqueData( 0. );
+            // _DEV_MC[0].SetVelocityData(8000.*sin(control_time/0.3));
 
             if(motion_count > 500 && is_print_comm_frequency) {
                 motion_count = 1;
@@ -88,7 +97,7 @@ void *rt_motion_thread(void *arg){
                     for(int i = 0; i < NUM_OF_RMD; i++ )
                     {
                         ROS_INFO("%dth --> %d times",i,_DEV_MC[i].count);
-                        _DEV_MC[i].count = 0; _DEV_MC[i].count_A1 = 0;
+                        _DEV_MC[i].count = 0; _DEV_MC[i].count_A1 = 0; 
                     }
                     std::cout<<std::endl;
                 }

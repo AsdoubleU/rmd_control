@@ -6,6 +6,8 @@
 #include "rmd_can.h"
 #include "rt_utils.h"
 
+#define PI 3.141592
+
 class rmd_motor
 {
 public:
@@ -27,9 +29,11 @@ public:
     int     actuator_direction;
     float   actuator_torque_limit;
     float   joint_initial_position;
+    float   filtered_data;
+    float   filtered_torque;
     bool    initialize_position{true};
     float   torque_to_data;
-    double   data_to_radian;
+    double  data_to_radian;
 
     void    EnableMotor();
     void    DisableMotor();
@@ -38,6 +42,7 @@ public:
     void    UpdateRxData2(void);
     void    SetTorqueData(float);
     void    SetVelocityData(float);
+    void    SetPositionData(float);
     float   GetTheta();
     float   GetThetaV3();
     float   GetThetaDot();
@@ -47,6 +52,8 @@ private:
     float   joint_velocity;
     float   joint_theta;
     float   joint_torque;
+    float   joint_torque_old;
+    float   torque_data_old;
     float   joint_temperature;
 
     float   motor_theta_last;

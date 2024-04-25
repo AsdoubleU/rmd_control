@@ -5,10 +5,10 @@ extern rmd_motor _DEV_MC[NUM_OF_RMD];
 
 Motor_Controller::Motor_Controller()
 {
-  _DEV_MC[0].actuator_direction =  -1;
+  _DEV_MC[0].actuator_direction =  1.;
   _DEV_MC[0].actuator_gear_ratio = 1.;   
   _DEV_MC[0].joint_initial_position = 0;     
-  _DEV_MC[0].torque_to_data = 24.5;    
+  _DEV_MC[0].torque_to_data = 225.;    
   _DEV_MC[0].actuator_torque_limit = 3.5*2;     
   _DEV_MC[0].data_to_radian = DATA_TO_RADIAN;
   _DEV_MC[0].is_v3 = true; 

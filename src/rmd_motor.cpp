@@ -17,8 +17,8 @@ void rmd_motor::UpdateRxData(void) {
     
     int temp_speed = (int)(feedback_data[4] | (feedback_data[5]<<8));
     if(temp_speed > 30000) temp_speed -= 65535;
-    if(is_v3) joint_velocity = 0.01 * temp_speed * actuator_direction;
-    else joint_velocity = 0.01 * temp_speed * actuator_direction / actuator_gear_ratio;
+    if(is_v3) joint_velocity = 0.028 * temp_speed * actuator_direction;
+    else joint_velocity = 0.028 * temp_speed * actuator_direction / actuator_gear_ratio;
 
     int temp_encoder = (int)(feedback_data[6] | (feedback_data[7]<<8));
 
@@ -112,11 +112,24 @@ void rmd_motor::SetTorqueData(float tau)
 
 void rmd_motor::SetVelocityData(float vel)
 {
-    // if(tau > actuator_torque_limit) tau = actuator_torque_limit;
-    // else if(tau < -1 * actuator_torque_limit) tau = -1 * actuator_torque_limit;
-    
-    long param = actuator_direction * torque_to_data * vel;
+
+    int32_t param = static_cast<int32_t>(vel*100.0);
     reference_data[0] = 0xA2 & 0xFF;
+    reference_data[1] = 0x00 & 0xFF;
+    reference_data[2] = 0x00 & 0xFF;
+    reference_data[3] = 0x00 & 0xFF;
+    reference_data[4] = (param     ) & 0xFF;
+    reference_data[5] = (param >> 8) & 0xFF;
+    reference_data[6] = (param >> 16) & 0xFF;
+    reference_data[7] = (param >> 24) & 0xFF;
+
+}
+
+void rmd_motor::SetPositionData(float pos)
+{
+
+    int32_t param = static_cast<int32_t>(pos*100.0);
+    reference_data[0] = 0xA3 & 0xFF;
     reference_data[1] = 0x00 & 0xFF;
     reference_data[2] = 0x00 & 0xFF;
     reference_data[3] = 0x00 & 0xFF;
