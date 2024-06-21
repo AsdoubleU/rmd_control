@@ -14,6 +14,9 @@ void rmd_motor::UpdateRxData(void) {
     
     int temp_torque = (int)(feedback_data[2] | (feedback_data[3]<<8));
     joint_torque = temp_torque / torque_to_data;
+
+    if(joint_torque > 2500) { joint_torque = -(joint_torque - 2675); }
+    joint_torque = direction*joint_torque;
     
     int temp_speed = (int)(feedback_data[4] | (feedback_data[5]<<8));
     if(temp_speed > 30000) temp_speed -= 65535;
@@ -108,6 +111,8 @@ void rmd_motor::SetTorqueData(float tau)
     reference_data[6] = 0x00 & 0xFF;
     reference_data[7] = 0x00 & 0xFF;
 
+    if(tau >= 0) { direction = 1; } else { direction = -1; }
+
 }
 
 void rmd_motor::SetVelocityData(float vel)
@@ -160,6 +165,18 @@ void rmd_motor::EnableMotor()
     initialize_position = true;
 
     reference_data[0] = 0x88 & 0xFF;
+    reference_data[1] = 0x00 & 0xFF;
+    reference_data[2] = 0x00 & 0xFF;
+    reference_data[3] = 0x00 & 0xFF;
+    reference_data[4] = 0x00 & 0xFF;
+    reference_data[5] = 0x00 & 0xFF;
+    reference_data[6] = 0x00 & 0xFF;
+    reference_data[7] = 0x00 & 0xFF;
+}
+
+void rmd_motor::SetGainDatas(float gain)
+{
+    reference_data[0] = 0x32 & 0xFF;
     reference_data[1] = 0x00 & 0xFF;
     reference_data[2] = 0x00 & 0xFF;
     reference_data[3] = 0x00 & 0xFF;

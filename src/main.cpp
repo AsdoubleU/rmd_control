@@ -83,10 +83,21 @@ void *rt_motion_thread(void *arg){
         }
 
         else if(thread_loop_count > 1000){
-
-            // motor_ctrl.SetTorque( 0.6*sin(control_time/0.3) );
-            _DEV_MC[0].SetTorqueData( 0. );
-            // _DEV_MC[0].SetVelocityData(8000.*sin(control_time/0.3));
+            
+            _DEV_MC[0].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[1].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[2].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[3].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[4].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[5].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[6].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[7].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[8].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[9].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[10].SetTorqueData( 2.*sin(control_time/0.3) );
+            _DEV_MC[11].SetTorqueData( 2.*sin(control_time/0.3) );
+            // _DEV_MC[0].SetTrqueData( 2.0 );
+            // _DEV_MC[0].SetVelocityDta( 8000.*sin(control_time/0.3) );
 
             if(motion_count > 500 && is_print_comm_frequency) {
                 motion_count = 1;

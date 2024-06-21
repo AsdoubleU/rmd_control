@@ -22,6 +22,7 @@ public:
     int     count_92;
     int     count_A1;
     int     unknown_value;
+    int     direction = 1;
 
     bool    is_v3;
 
@@ -43,6 +44,7 @@ public:
     void    SetTorqueData(float);
     void    SetVelocityData(float);
     void    SetPositionData(float);
+    void    SetGainDatas(float);
     float   GetTheta();
     float   GetThetaV3();
     float   GetThetaDot();
