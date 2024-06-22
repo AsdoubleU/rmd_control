@@ -7,8 +7,8 @@
 #include "rmd_motor.h"
 #include "shared_memory.h"
 
-#define MAX_CAN_PER_MSG     7
-#define MAX_BYTE_PER_MSG    84
+#define MAX_CAN_PER_MSG     12
+#define MAX_BYTE_PER_MSG    144
 
 typedef union{
     ST_CAN  can_msg[MAX_CAN_PER_MSG];

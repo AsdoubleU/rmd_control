@@ -19,8 +19,8 @@ class rmd_can
 public:
     rmd_can();
 
-    static pthread_mutex_t mutex_reference[12];
-    static ST_CAN  reference_msg[12];
+    static pthread_mutex_t mutex_reference[24];
+    static ST_CAN  reference_msg[24];
 };
 
 #endif // RB_CAN_H

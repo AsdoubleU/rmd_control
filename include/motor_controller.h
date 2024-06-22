@@ -5,8 +5,8 @@
 
 #define   DATA_TO_RADIAN 1.065329236946157e-5
 #define   FILTER_WINDOW_SIZE  20
-#define   NUM_OF_ACTUATORS    12
-#define   NUM_OF_RMD          12
+#define   NUM_OF_ACTUATORS    24
+#define   NUM_OF_RMD          24
 
 using Eigen::Vector3d;
 using Eigen::Quaterniond;

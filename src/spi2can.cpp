@@ -8,7 +8,7 @@
 #include "motor_controller.h"
 #include "callback.h"
 
-#define RMD_COUNT 5
+#define RMD_COUNT 24
 
 extern pRBCORE_SHM sharedData;
 extern rmd_motor _DEV_MC[RMD_COUNT];
@@ -85,7 +85,7 @@ void *spi2can::spi2can_thread(void *arg){
     clock_gettime(CLOCK_REALTIME, &TIME_NEXT);
     while(true)
     {
-        for(uint8_t i=0; i<6; i++)
+        for(uint8_t i=0; i<12; i++)
         {
             for(int j=0; j<8; j++)
             {
@@ -93,7 +93,7 @@ void *spi2can::spi2can_thread(void *arg){
             }
         }
 
-        for(int i=0; i<6; i++){
+        for(int i=0; i<12; i++){
             if(sharedData->rmd_motor_run_flag[i]){
                 pthread_mutex_lock(&rmd_can::mutex_reference[i]);
                 memcpy(&(tx_1[i*12]), &(rmd_can::reference_msg[i]), 12);
@@ -101,19 +101,19 @@ void *spi2can::spi2can_thread(void *arg){
             }
         }
 
-        for(uint8_t i=0; i<6; i++)
+        for(uint8_t i=0; i<12; i++)
         {
             for(int j=0; j<8; j++)
             {
-                rmd_can::reference_msg[i+6].data[j] = _DEV_MC[i+6].reference_data[j];
+                rmd_can::reference_msg[i+12].data[j] = _DEV_MC[i+12].reference_data[j];
             }
         }
 
-        for(int i=0; i<6; i++){
-            if(sharedData->rmd_motor_run_flag[i+6]){
-                pthread_mutex_lock(&rmd_can::mutex_reference[i+6]);
-                memcpy(&(tx_2[i*12]), &(rmd_can::reference_msg[i+6]), 12);
-                pthread_mutex_unlock(&rmd_can::mutex_reference[i+6]);
+        for(int i=0; i<12; i++){
+            if(sharedData->rmd_motor_run_flag[i+12]){
+                pthread_mutex_lock(&rmd_can::mutex_reference[i+12]);
+                memcpy(&(tx_2[i*12]), &(rmd_can::reference_msg[i+12]), 12);
+                pthread_mutex_unlock(&rmd_can::mutex_reference[i+12]);
             }
         }
 

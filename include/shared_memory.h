@@ -49,14 +49,14 @@ typedef struct _RBCORE_SHM_
     bool NEWCOMMAND;
     bool LanComm_Status;
 
-    bool rmd_motor_run_flag[12];
+    bool rmd_motor_run_flag[24];
     //    int rmd_reference_velocity[12];
     //    int rmd_reference_position[12];
-    int rmd_reference_parameter[12];//added
-    int rmd_status_temperature[12];
-    int rmd_status_torque[12];
-    int rmd_status_velocity[12];
-    int rmd_status_position[12];
+    int rmd_reference_parameter[24];//added
+    int rmd_status_temperature[24];
+    int rmd_status_torque[24];
+    int rmd_status_velocity[24];
+    int rmd_status_position[24];
     int COMMAND_NUM;
 
     int rmd_response[8];
