@@ -38,6 +38,7 @@ public:
   void ReadTheta();    
   void SetTorque(VectorXd tau);
   void SetTorque(float tau);
+  void SetPosition(float max_speed, float pos);
   void SetPosition(VectorXd theta);  
   void EnableMotor();
   void EnableFilter();

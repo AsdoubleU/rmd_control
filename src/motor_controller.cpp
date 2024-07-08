@@ -88,9 +88,9 @@ void Motor_Controller::EnableMotor()
   sharedData->rmd_motor_run_flag[1] = true;  
   sharedData->rmd_motor_run_flag[2] = true; 
   sharedData->rmd_motor_run_flag[3] = true; 
+  // SPI 1.1  CH B
   sharedData->rmd_motor_run_flag[4] = true;     
   sharedData->rmd_motor_run_flag[5] = true;     
-  // SPI 1.1  CH B
   sharedData->rmd_motor_run_flag[6] = true;     
   sharedData->rmd_motor_run_flag[7] = true;
   sharedData->rmd_motor_run_flag[8] = true;
@@ -102,9 +102,9 @@ void Motor_Controller::EnableMotor()
   sharedData->rmd_motor_run_flag[13] = true; 
   sharedData->rmd_motor_run_flag[14] = true; 
   sharedData->rmd_motor_run_flag[15] = true; 
+  //          CH D
   sharedData->rmd_motor_run_flag[16] = true; 
   sharedData->rmd_motor_run_flag[17] = true; 
-  //          CH D
   sharedData->rmd_motor_run_flag[18] = true; 
   sharedData->rmd_motor_run_flag[19] = true; 
   sharedData->rmd_motor_run_flag[20] = true; 
@@ -181,6 +181,15 @@ void Motor_Controller::SetTorque(float tau)
     _DEV_MC[i].SetTorqueData(tau);
   }
 }
+
+void Motor_Controller::SetPosition(float max_speed,float pos)
+{
+  for(uint8_t i=0; i<NUM_OF_RMD; i++) 
+  {
+    _DEV_MC[i].SetPositionData(max_speed, pos);
+  }
+}
+
 
 
 void Motor_Controller::EnableFilter(){

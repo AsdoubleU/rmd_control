@@ -43,7 +43,7 @@ public:
     void    UpdateRxData2(void);
     void    SetTorqueData(float);
     void    SetVelocityData(float);
-    void    SetPositionData(float);
+    void    SetPositionData(float, float);
     void    SetGainDatas(float);
     float   GetTheta();
     float   GetThetaV3();

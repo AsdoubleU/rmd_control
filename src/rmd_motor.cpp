@@ -130,14 +130,16 @@ void rmd_motor::SetVelocityData(float vel)
 
 }
 
-void rmd_motor::SetPositionData(float pos)
+void rmd_motor::SetPositionData(float max_speed, float pos)
 {
 
     int32_t param = static_cast<int32_t>(pos*100.0);
-    reference_data[0] = 0xA3 & 0xFF;
+    int32_t speed = static_cast<int32_t>(max_speed*100.0);
+
+    reference_data[0] = 0xA4 & 0xFF;
     reference_data[1] = 0x00 & 0xFF;
-    reference_data[2] = 0x00 & 0xFF;
-    reference_data[3] = 0x00 & 0xFF;
+    reference_data[2] = (param     ) & 0xFF;
+    reference_data[3] = (param >> 8) & 0xFF;
     reference_data[4] = (param     ) & 0xFF;
     reference_data[5] = (param >> 8) & 0xFF;
     reference_data[6] = (param >> 16) & 0xFF;
