@@ -168,13 +168,13 @@ void *rt_motion_thread(void *arg){
                 if(motion_count_time_sec < 120)
                 {
                     motion_count_time_sec++;
-                    ROS_INFO("Reception Count for the nth motor");
+                    // ROS_INFO("Reception Count for the nth motor");
                     for(int i = 0; i < NUM_OF_ACTUATORS; i++ )
                     {
-                        ROS_INFO("%dth --> %d times",i,_DEV_MC[i].count);
+                        // ROS_INFO("%dth --> %d times",i,_DEV_MC[i].count);
                         _DEV_MC[i].count = 0; _DEV_MC[i].count_A1 = 0; 
                     }
-                    std::cout<<std::endl;
+                    // std::cout<<std::endl;
                 }
                 else is_print_comm_frequency = false;
             }

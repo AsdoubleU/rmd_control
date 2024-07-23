@@ -145,6 +145,9 @@ void rmd_motor::SetPositionData(float max_speed, float pos)
     reference_data[6] = (param >> 16) & 0xFF;
     reference_data[7] = (param >> 24) & 0xFF;
 
+    if(pos >= pre_pos) { direction = 1; } else { direction = -1; }
+    pre_pos = pos;
+
 }
 
 // ID 0x20 0x02 0x00 0x00 0x01 0x00 0x00 0x00

@@ -35,6 +35,7 @@ public:
     float   torque_to_data;
     double  data_to_radian;
     int     direction;
+    float     pre_pos;
 
     void    EnableMotor();
     void    DisableMotor();

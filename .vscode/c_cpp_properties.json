@@ -10,6 +10,7 @@
           "/opt/ros/noetic/include/**",
           "/home/sthexa/catkin_ws/src/microstrain_inertial/microstrain_inertial_driver/include/**",
           "/home/sthexa/catkin_ws/src/rmd_control/include/**",
+          "/home/sthexa/catkin_ws/src/rmd_control/include/",
           "/usr/include/**"
         ],
         "name": "ROS",
