@@ -165,7 +165,7 @@ void *spi2can::spi2can_thread(void *arg){
                     if(id>=0x240) bno = id-0x240;
                     else bno = id-0x00000141;
                     _DEV_MC[bno].count++;
-                    if(recv_data2[0] == 0xA1 || recv_data2[0] == 0xA2 || recv_data2[0] == 0xA3){ 
+                    if(recv_data2[0] == 0xA1 || recv_data2[0] == 0xA2 || recv_data2[0] == 0xA4){ 
                         for(int j=0; j<dlc; j++) _DEV_MC[bno].feedback_data[j] = recv_data2[j];
                         if(_DEV_MC[bno].data_to_radian == DATA_TO_RADIAN)  _DEV_MC[bno].UpdateRxData();
                         else _DEV_MC[bno].UpdateRxData2();

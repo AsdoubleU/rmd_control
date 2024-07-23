@@ -15,9 +15,9 @@ void rmd_motor::UpdateRxData(void) {
     int temp_torque = (int)(feedback_data[2] | (feedback_data[3]<<8));
     joint_torque = temp_torque / torque_to_data;
 
-    if(joint_torque > 2500) { joint_torque = -(joint_torque - 2675); }
+    if( joint_torque > 2500 ) { joint_torque = -(joint_torque - 2675); }
     joint_torque = direction*joint_torque;
-    
+
     int temp_speed = (int)(feedback_data[4] | (feedback_data[5]<<8));
     if(temp_speed > 30000) temp_speed -= 65535;
     if(is_v3) joint_velocity = 0.028 * temp_speed * actuator_direction;
@@ -42,7 +42,7 @@ void rmd_motor::UpdateRxData(void) {
     else if (temp_theta < -589788) count_overflow = 0;
 
     temp_encoder_last = temp_encoder;
-    joint_theta = temp_theta * data_to_radian;
+    joint_theta = temp_theta * actuator_direction * data_to_radian; 
    
 }
 
@@ -134,12 +134,12 @@ void rmd_motor::SetPositionData(float max_speed, float pos)
 {
 
     int32_t param = static_cast<int32_t>(pos*100.0);
-    int32_t speed = static_cast<int32_t>(max_speed*100.0);
+    int32_t speed = static_cast<int32_t>(max_speed);
 
     reference_data[0] = 0xA4 & 0xFF;
     reference_data[1] = 0x00 & 0xFF;
-    reference_data[2] = (param     ) & 0xFF;
-    reference_data[3] = (param >> 8) & 0xFF;
+    reference_data[2] = (speed     ) & 0xFF;
+    reference_data[3] = (speed >> 8) & 0xFF;
     reference_data[4] = (param     ) & 0xFF;
     reference_data[5] = (param >> 8) & 0xFF;
     reference_data[6] = (param >> 16) & 0xFF;

@@ -22,7 +22,6 @@ public:
     int     count_92;
     int     count_A1;
     int     unknown_value;
-    int     direction = 1;
 
     bool    is_v3;
 
@@ -35,6 +34,7 @@ public:
     bool    initialize_position{true};
     float   torque_to_data;
     double  data_to_radian;
+    int     direction;
 
     void    EnableMotor();
     void    DisableMotor();

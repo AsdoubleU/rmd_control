@@ -156,10 +156,11 @@ void *rt_motion_thread(void *arg){
         }
 
         else if(thread_loop_count > 1000){
-
-            motor_ctrl.SetTorque( 2.*sin(control_time/0.3) );
-            // motor_ctrl.SetPosition(8000, 4000*sin(control_time));
-            // _DEV_MC[0].SetTorqueData( 2.0 );
+            reference = 1080*sin(control_time/0.3);
+            // motor_ctrl.SetTorque( 2.*sin(control_time/0.3) );
+            // motor_ctrl.SetTorque( 0 );
+            motor_ctrl.SetPosition(8000, reference);
+            // _DEV_MC[4].SetTorqueData( 2.*sin(control_time/0.3) );
             // _DEV_MC[0].SetVelocityDta( 8000.*sin(control_time/0.3) );
 
             if(motion_count > 500 && is_print_comm_frequency) {
@@ -168,7 +169,7 @@ void *rt_motion_thread(void *arg){
                 {
                     motion_count_time_sec++;
                     ROS_INFO("Reception Count for the nth motor");
-                    for(int i = 0; i < NUM_OF_RMD; i++ )
+                    for(int i = 0; i < NUM_OF_ACTUATORS; i++ )
                     {
                         ROS_INFO("%dth --> %d times",i,_DEV_MC[i].count);
                         _DEV_MC[i].count = 0; _DEV_MC[i].count_A1 = 0; 
