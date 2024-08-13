@@ -114,9 +114,12 @@ void Motor_Controller::EnableMotor()
 
 
   for(uint8_t i=0; i<NUM_OF_RMD; i++) 
-  {
+  { 
+    _DEV_MC[i].DisableMotor();
     _DEV_MC[i].EnableMotor();
+    _DEV_MC[i].SetTorqueData(0);
   }
+
 }
 
 
@@ -197,4 +200,8 @@ void Motor_Controller::EnableFilter(){
   {
     _DEV_MC[i].EnableFilter();
   }
+}
+
+void Motor_Controller::SetInitialTheta(){
+  for(size_t i=0;i<NUM_OF_RMD;i++){ _DEV_MC[i].SetInitialTheta(); }
 }

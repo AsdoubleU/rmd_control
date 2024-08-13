@@ -1,190 +1,7 @@
-#include "spi2can.h"
-#include "rt_utils.h"
-#include "motor_controller.h"
-#include "callback.h"
-#include "ros_plot.h"
-
-float reference;
-float ddot_old;
-float filter_old;
-
-static void *rt_motion_thread(void *arg);
-pRBCORE_SHM sharedData;
-rmd_motor _DEV_MC[NUM_OF_RMD];
-Motor_Controller motor_ctrl;
-Callback callback;
-
-FILE *REFERENCE;
-FILE *ANGLE[24];
-FILE *ANGULAR_VELOCITY[24];
-FILE *TORQUE[24];
-
-int main(int argc, char *argv[])
-{
-    ros::init(argc, argv, "rmd_control");
-    ros::Time::init();
-    ros::Rate loop_rate(500);
-    ros::NodeHandle node_handle_;
-
-    spi2can::getInstance();
-
-    sharedData = (pRBCORE_SHM)malloc(sizeof(RBCORE_SHM));
-
-    pthread_t thread_motion;
-
-    int thread_id_motion = generate_rt_thread(thread_motion, rt_motion_thread, "motion_thread", 3, 95, NULL);
-
-    p_angle[0] = node_handle_.advertise<std_msgs::Float64>("/angle_1/",1);
-    p_angle[1] = node_handle_.advertise<std_msgs::Float64>("/angle_2/",1);
-    p_angle[2] = node_handle_.advertise<std_msgs::Float64>("/angle_3/",1);
-    p_angle[3] = node_handle_.advertise<std_msgs::Float64>("/angle_4/",1);
-    p_angle[4] = node_handle_.advertise<std_msgs::Float64>("/angle_5/",1);
-    p_angle[5] = node_handle_.advertise<std_msgs::Float64>("/angle_6/",1);
-    p_angle[6] = node_handle_.advertise<std_msgs::Float64>("/angle_7/",1);
-    p_angle[7] = node_handle_.advertise<std_msgs::Float64>("/angle_8/",1);
-    p_angle[8] = node_handle_.advertise<std_msgs::Float64>("/angle_9/",1);
-    p_angle[9] = node_handle_.advertise<std_msgs::Float64>("/angle_10/",1);
-    p_angle[10] = node_handle_.advertise<std_msgs::Float64>("/angle_11/",1);
-    p_angle[11] = node_handle_.advertise<std_msgs::Float64>("/angle_12/",1);
-    p_angle[12] = node_handle_.advertise<std_msgs::Float64>("/angle_13/",1);
-    p_angle[13] = node_handle_.advertise<std_msgs::Float64>("/angle_14/",1);
-    p_angle[14] = node_handle_.advertise<std_msgs::Float64>("/angle_15/",1);
-    p_angle[15] = node_handle_.advertise<std_msgs::Float64>("/angle_16/",1);
-    p_angle[16] = node_handle_.advertise<std_msgs::Float64>("/angle_17/",1);
-    p_angle[17] = node_handle_.advertise<std_msgs::Float64>("/angle_18/",1);
-    p_angle[18] = node_handle_.advertise<std_msgs::Float64>("/angle_19/",1);
-    p_angle[19] = node_handle_.advertise<std_msgs::Float64>("/angle_20/",1);
-    p_angle[20] = node_handle_.advertise<std_msgs::Float64>("/angle_21/",1);
-    p_angle[21] = node_handle_.advertise<std_msgs::Float64>("/angle_22/",1);
-    p_angle[22] = node_handle_.advertise<std_msgs::Float64>("/angle_23/",1);
-    p_angle[23] = node_handle_.advertise<std_msgs::Float64>("/angle_24/",1);
-
-    p_angular_velocity[0] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_1/",1);
-    p_angular_velocity[1] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_2/",1);
-    p_angular_velocity[2] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_3/",1);
-    p_angular_velocity[3] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_4/",1);
-    p_angular_velocity[4] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_5/",1);
-    p_angular_velocity[5] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_6/",1);
-    p_angular_velocity[6] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_7/",1);
-    p_angular_velocity[7] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_8/",1);
-    p_angular_velocity[8] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_9/",1);
-    p_angular_velocity[9] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_10/",1);
-    p_angular_velocity[10] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_11/",1);
-    p_angular_velocity[11] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_12/",1);
-    p_angular_velocity[12] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_13/",1);
-    p_angular_velocity[13] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_14/",1);
-    p_angular_velocity[14] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_15/",1);
-    p_angular_velocity[15] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_16/",1);
-    p_angular_velocity[16] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_17/",1);
-    p_angular_velocity[17] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_18/",1);
-    p_angular_velocity[18] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_19/",1);
-    p_angular_velocity[19] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_20/",1);
-    p_angular_velocity[20] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_21/",1);
-    p_angular_velocity[21] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_22/",1);
-    p_angular_velocity[22] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_23/",1);
-    p_angular_velocity[23] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_24/",1);
-
-    p_torque[0] = node_handle_.advertise<std_msgs::Float64>("/torque_1/",1);
-    p_torque[1] = node_handle_.advertise<std_msgs::Float64>("/torque_2/",1);
-    p_torque[2] = node_handle_.advertise<std_msgs::Float64>("/torque_3/",1);
-    p_torque[3] = node_handle_.advertise<std_msgs::Float64>("/torque_4/",1);
-    p_torque[4] = node_handle_.advertise<std_msgs::Float64>("/torque_5/",1);
-    p_torque[5] = node_handle_.advertise<std_msgs::Float64>("/torque_6/",1);
-    p_torque[6] = node_handle_.advertise<std_msgs::Float64>("/torque_7/",1);
-    p_torque[7] = node_handle_.advertise<std_msgs::Float64>("/torque_8/",1);
-    p_torque[8] = node_handle_.advertise<std_msgs::Float64>("/torque_9/",1);
-    p_torque[9] = node_handle_.advertise<std_msgs::Float64>("/torque_10/",1);
-    p_torque[10] = node_handle_.advertise<std_msgs::Float64>("/torque_11/",1);
-    p_torque[11] = node_handle_.advertise<std_msgs::Float64>("/torque_12/",1);
-    p_torque[12] = node_handle_.advertise<std_msgs::Float64>("/torque_13/",1);
-    p_torque[13] = node_handle_.advertise<std_msgs::Float64>("/torque_14/",1);
-    p_torque[14] = node_handle_.advertise<std_msgs::Float64>("/torque_15/",1);
-    p_torque[15] = node_handle_.advertise<std_msgs::Float64>("/torque_16/",1);
-    p_torque[16] = node_handle_.advertise<std_msgs::Float64>("/torque_17/",1);
-    p_torque[17] = node_handle_.advertise<std_msgs::Float64>("/torque_18/",1);
-    p_torque[18] = node_handle_.advertise<std_msgs::Float64>("/torque_19/",1);
-    p_torque[19] = node_handle_.advertise<std_msgs::Float64>("/torque_20/",1);
-    p_torque[20] = node_handle_.advertise<std_msgs::Float64>("/torque_21/",1);
-    p_torque[21] = node_handle_.advertise<std_msgs::Float64>("/torque_22/",1);
-    p_torque[22] = node_handle_.advertise<std_msgs::Float64>("/torque_23/",1);
-    p_torque[23] = node_handle_.advertise<std_msgs::Float64>("/torque_24/",1);
-
-    p_reference = node_handle_.advertise<std_msgs::Float64>("/reference/",1);
-
-    REFERENCE = fopen("/home/sthexa/data/reference.dat","w");
-
-    ANGLE[0] = fopen("/home/sthexa/data/angle1.dat","w"); ANGLE[1] = fopen("/home/sthexa/data/angle2.dat","w");
-    ANGLE[2] = fopen("/home/sthexa/data/angle3.dat","w"); ANGLE[3] = fopen("/home/sthexa/data/angle4.dat","w");
-    ANGLE[4] = fopen("/home/sthexa/data/angle5.dat","w"); ANGLE[5] = fopen("/home/sthexa/data/angle6.dat","w");
-    ANGLE[6] = fopen("/home/sthexa/data/angle7.dat","w"); ANGLE[7] = fopen("/home/sthexa/data/angle8.dat","w");
-    ANGLE[8] = fopen("/home/sthexa/data/angle9.dat","w"); ANGLE[9] = fopen("/home/sthexa/data/angle10.dat","w");
-    ANGLE[10] = fopen("/home/sthexa/data/angle11.dat","w"); ANGLE[11] = fopen("/home/sthexa/data/angle12.dat","w");
-    ANGLE[12] = fopen("/home/sthexa/data/angle13.dat","w"); ANGLE[13] = fopen("/home/sthexa/data/angle14.dat","w");
-    ANGLE[14] = fopen("/home/sthexa/data/angle15.dat","w"); ANGLE[15] = fopen("/home/sthexa/data/angle16.dat","w");
-    ANGLE[16] = fopen("/home/sthexa/data/angle17.dat","w"); ANGLE[17] = fopen("/home/sthexa/data/angle18.dat","w");
-    ANGLE[18] = fopen("/home/sthexa/data/angle19.dat","w"); ANGLE[19] = fopen("/home/sthexa/data/angle20.dat","w");
-    ANGLE[20] = fopen("/home/sthexa/data/angle21.dat","w"); ANGLE[21] = fopen("/home/sthexa/data/angle22.dat","w");
-    ANGLE[22] = fopen("/home/sthexa/data/angle23.dat","w"); ANGLE[23] = fopen("/home/sthexa/data/angle24.dat","w");
-
-    ANGULAR_VELOCITY[0] = fopen("/home/sthexa/data/angular_velocity1.dat","w"); ANGULAR_VELOCITY[1] = fopen("/home/sthexa/data/angular_velocity2.dat","w");
-    ANGULAR_VELOCITY[2] = fopen("/home/sthexa/data/angular_velocity3.dat","w"); ANGULAR_VELOCITY[3] = fopen("/home/sthexa/data/angular_velocity4.dat","w");
-    ANGULAR_VELOCITY[4] = fopen("/home/sthexa/data/angular_velocity5.dat","w"); ANGULAR_VELOCITY[5] = fopen("/home/sthexa/data/angular_velocity6.dat","w");
-    ANGULAR_VELOCITY[6] = fopen("/home/sthexa/data/angular_velocity7.dat","w"); ANGULAR_VELOCITY[7] = fopen("/home/sthexa/data/angular_velocity8.dat","w");
-    ANGULAR_VELOCITY[8] = fopen("/home/sthexa/data/angular_velocity9.dat","w"); ANGULAR_VELOCITY[9] = fopen("/home/sthexa/data/angular_velocity10.dat","w");
-    ANGULAR_VELOCITY[10] = fopen("/home/sthexa/data/angular_velocity11.dat","w"); ANGULAR_VELOCITY[11] = fopen("/home/sthexa/data/angular_velocity12.dat","w");
-    ANGULAR_VELOCITY[12] = fopen("/home/sthexa/data/angular_velocity13.dat","w"); ANGULAR_VELOCITY[13] = fopen("/home/sthexa/data/angular_velocity14.dat","w");
-    ANGULAR_VELOCITY[14] = fopen("/home/sthexa/data/angular_velocity15.dat","w"); ANGULAR_VELOCITY[15] = fopen("/home/sthexa/data/angular_velocity16.dat","w");
-    ANGULAR_VELOCITY[16] = fopen("/home/sthexa/data/angular_velocity17.dat","w"); ANGULAR_VELOCITY[17] = fopen("/home/sthexa/data/angular_velocity18.dat","w");
-    ANGULAR_VELOCITY[18] = fopen("/home/sthexa/data/angular_velocity19.dat","w"); ANGULAR_VELOCITY[19] = fopen("/home/sthexa/data/angular_velocity20.dat","w");
-    ANGULAR_VELOCITY[20] = fopen("/home/sthexa/data/angular_velocity21.dat","w"); ANGULAR_VELOCITY[21] = fopen("/home/sthexa/data/angular_velocity22.dat","w");
-    ANGULAR_VELOCITY[22] = fopen("/home/sthexa/data/angular_velocity23.dat","w"); ANGULAR_VELOCITY[23] = fopen("/home/sthexa/data/angular_velocity24.dat","w");
-
-    TORQUE[0] = fopen("/home/sthexa/data/torque1.dat","w"); TORQUE[1] = fopen("/home/sthexa/data/torque2.dat","w");
-    TORQUE[2] = fopen("/home/sthexa/data/torque3.dat","w"); TORQUE[3] = fopen("/home/sthexa/data/torque4.dat","w");
-    TORQUE[4] = fopen("/home/sthexa/data/torque5.dat","w"); TORQUE[5] = fopen("/home/sthexa/data/torque6.dat","w");
-    TORQUE[6] = fopen("/home/sthexa/data/torque7.dat","w"); TORQUE[7] = fopen("/home/sthexa/data/torque8.dat","w");
-    TORQUE[8] = fopen("/home/sthexa/data/torque9.dat","w"); TORQUE[9] = fopen("/home/sthexa/data/torque10.dat","w");
-    TORQUE[10] = fopen("/home/sthexa/data/torque11.dat","w"); TORQUE[11] = fopen("/home/sthexa/data/torque12.dat","w");
-    TORQUE[12] = fopen("/home/sthexa/data/torque13.dat","w"); TORQUE[13] = fopen("/home/sthexa/data/torque14.dat","w");
-    TORQUE[14] = fopen("/home/sthexa/data/torque15.dat","w"); TORQUE[15] = fopen("/home/sthexa/data/torque16.dat","w");
-    TORQUE[16] = fopen("/home/sthexa/data/torque17.dat","w"); TORQUE[17] = fopen("/home/sthexa/data/torque18.dat","w");
-    TORQUE[18] = fopen("/home/sthexa/data/torque19.dat","w"); TORQUE[19] = fopen("/home/sthexa/data/torque20.dat","w");
-    TORQUE[20] = fopen("/home/sthexa/data/torque21.dat","w"); TORQUE[21] = fopen("/home/sthexa/data/torque22.dat","w");
-    TORQUE[22] = fopen("/home/sthexa/data/torque23.dat","w"); TORQUE[23] = fopen("/home/sthexa/data/torque24.dat","w");
-
-    while(ros::ok())
-    {
-        ros::Time current_time = ros::Time::now();
-
-        for(size_t i=0;i<NUM_OF_RMD;i++){
-            m_angle[i].data = _DEV_MC[i].GetTheta()*RAD2DEG;
-            m_angular_velocity[i].data = _DEV_MC[i].GetThetaDot();
-            m_torque[i].data = _DEV_MC[i].GetTorque();
-            p_angle[i].publish(m_angle[i]);
-            p_angular_velocity[i].publish(m_angular_velocity[i]);
-            p_torque[i].publish(m_torque[i]);
-        }
-        // m_reference.data = reference*30/1080;
-        m_reference.data = reference;
-        p_reference.publish(m_reference);
-
-        fprintf(REFERENCE, "%lf\n", reference);
-
-        for(size_t i=0;i<NUM_OF_ACTUATORS;i++){
-            fprintf(ANGLE[i], "%lf\n", _DEV_MC[i].GetTheta()*RAD2DEG );
-            fprintf(ANGULAR_VELOCITY[i], "%lf\n", _DEV_MC[i].GetThetaDot() );
-            fprintf(TORQUE[i], "%lf\n", _DEV_MC[i].GetTorque() );
-        }
-
-        ros::spinOnce();
-        loop_rate.sleep();
-        
-    }
-    return 0;
-}
-
+#include "main.h"
 
 void *rt_motion_thread(void *arg){
+
     const long PERIOD_US = RT_MS * 1000;
     struct timespec TIME_NEXT;
     struct timespec TIME_NOW;
@@ -192,6 +9,7 @@ void *rt_motion_thread(void *arg){
     int motion_count = 0;
     int motion_count_time_sec = 0;
     double control_time = 0.;
+    double motion_time = 0.;
     bool is_print_comm_frequency = true;
 
     clock_gettime(CLOCK_REALTIME, &TIME_NEXT);
@@ -202,34 +20,116 @@ void *rt_motion_thread(void *arg){
         control_time = thread_loop_count/500.;
 
         if(is_first_loop){
-            motor_ctrl.EnableMotor();
 
+            for (size_t i=0;i<NUM_OF_ACTUATORS;i++){
+                traj[i].init(0.002,1);
+                traj[i].isEnd = false;
+                traj[i].t_ = 0;
+            }
+            motor_ctrl.EnableMotor();
             timespec_add_us(&TIME_NEXT, 4 * 1000 * 1000);
             is_first_loop = false;
             thread_loop_count++;
+
         }
 
-        else if(thread_loop_count > 1000){
-            reference = 1080*sin(control_time/0.3);
-            // reference = 2.*sin(control_time/0.3);
-            // motor_ctrl.SetTorque( 2.*sin(control_time/0.3) );
+        else if(thread_loop_count < 1000 ){
+            motor_ctrl.SetTorque(0);
+            motor_ctrl.SetInitialTheta();
+            thread_loop_count++;
+        }
+
+        else if(thread_loop_count > 1000 && thread_loop_count < 6000){
+
+            for(size_t i=0;i<NUM_OF_ACTUATORS;i++) { 
+                traj[i].SetSinusoidalTrajectory(0., _DEV_MC[i].initial_theta, 3.0);
+                if(!traj[0].isEnd)_DEV_MC[i].SetPositionData(100,traj[i].GetRefvar()*RAD2COMMAND);
+            }
+            
+            if(thread_loop_count > 5998) {
+                for(size_t i=0;i<NUM_OF_ACTUATORS;i++){
+                    traj[i].isEnd = false;
+                    traj[i].t_ = 0;
+                }
+            }
+
+            thread_loop_count++;
+
+        }
+
+        else if(thread_loop_count > 6000) {
+            
+            // reference = 1080*sin((motion_time)/0.3);
+            // motor_ctrl.SetPosition(8000, reference);
+            // reference = 2.0*sin(control_time/0.3);
+            // motor_ctrl.SetTorque( reference );
             // motor_ctrl.SetTorque( 0 );
-            motor_ctrl.SetPosition(8000, reference);
-            // _DEV_MC[4].SetTorqueData( 2.*sin(control_time/0.3) );
             // _DEV_MC[0].SetVelocityDta( 8000.*sin(control_time/0.3) );
+
+            if(mode == 0) {
+                for(size_t i=0;i<NUM_OF_ACTUATORS;i++) { 
+                    traj[i].SetSinusoidalTrajectory(2160., 0., 1.0);
+                    reference = traj[0].GetRefvar();
+                    if(!traj[i].isEnd) _DEV_MC[i].SetPositionData(8000,traj[i].GetRefvar());
+                }
+
+                if(motion_time > 1.0) {
+                    mode++;
+                    for(size_t i=0;i<NUM_OF_ACTUATORS;i++){
+                        traj[i].isEnd = false;
+                        traj[i].t_ = 0;
+                    }
+                }
+            }
+
+            else if(mode == 1) {
+                for(size_t i=0;i<NUM_OF_ACTUATORS;i++) { 
+                    traj[i].SetSinusoidalTrajectory(1080., 2160., 1.0);
+                    reference = traj[0].GetRefvar();
+                    if(!traj[i].isEnd) _DEV_MC[i].SetPositionData(8000,traj[i].GetRefvar());
+                }
+
+                if(motion_time > 2.0) {
+                    mode++;
+                    for(size_t i=0;i<NUM_OF_ACTUATORS;i++){
+                        traj[i].isEnd = false;
+                        traj[i].t_ = 0;
+                    }
+                }
+            }
+
+            else if(mode == 2) {
+                for(size_t i=0;i<NUM_OF_ACTUATORS;i++) { 
+                    traj[i].SetSinusoidalTrajectory(0., 1080., 1.0);
+                    reference = traj[0].GetRefvar();
+                    if(!traj[i].isEnd) _DEV_MC[i].SetPositionData(8000,traj[i].GetRefvar());
+                }
+
+                if(motion_time > 3.0) {
+                    mode = 0;
+                    motion_time = 0;
+                    for(size_t i=0;i<NUM_OF_ACTUATORS;i++){
+                        traj[i].isEnd = false;
+                        traj[i].t_ = 0;
+                    }
+                }
+            }
+
+
+            motion_time += 0.002;
 
             if(motion_count > 500 && is_print_comm_frequency) {
                 motion_count = 1;
                 if(motion_count_time_sec < 120)
                 {
                     motion_count_time_sec++;
-                    ROS_INFO("Reception Count for the nth motor");
+                    // ROS_INFO("Reception Count for the nth motor");
                     for(int i = 0; i < NUM_OF_ACTUATORS; i++ )
                     {
-                        ROS_INFO("%dth --> %d times",i,_DEV_MC[i].count);
+                        // ROS_INFO("%dth --> %d times",i,_DEV_MC[i].count);
                         _DEV_MC[i].count = 0; _DEV_MC[i].count_A1 = 0; 
                     }
-                    std::cout<<std::endl;
+                    // std::cout<<std::endl;
                 }
                 else is_print_comm_frequency = false;
             }
@@ -244,5 +144,6 @@ void *rt_motion_thread(void *arg){
         timespec_add_us(&TIME_NEXT, PERIOD_US);
         clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &TIME_NEXT, NULL);
         if(timespec_cmp(&TIME_NOW, &TIME_NEXT) > 0) ROS_ERROR("RT Deadline Miss, main controller : %.3f ms",timediff_us(&TIME_NEXT, &TIME_NOW)*0.001); 
-    }
+        }
+
 }

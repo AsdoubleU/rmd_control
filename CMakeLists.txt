@@ -50,6 +50,7 @@ add_executable(
   src/spi2can.cpp
   src/rmd_motor.cpp
   src/motor_controller.cpp
+  src/TrajectoryGenerator.cpp
   src/callback.cpp)
 add_dependencies(rmd_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(rmd_control ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} Qt5::Core ${RBDL_LIBRARY})

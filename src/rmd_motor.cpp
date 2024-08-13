@@ -43,7 +43,11 @@ void rmd_motor::UpdateRxData(void) {
 
     temp_encoder_last = temp_encoder;
     joint_theta = temp_theta * actuator_direction * data_to_radian; 
-   
+
+    // if (is_theta_initialize == false && joint_theta < 10.0 && joint_theta > -10.0) {
+    //     is_theta_initialize = true;
+    //     initial_theta = joint_theta;
+    // }
 }
 
 void rmd_motor::UpdateRxData2(void) {
@@ -95,7 +99,6 @@ float rmd_motor::GetTorque()
     return joint_torque;
 }
 
-
 void rmd_motor::SetTorqueData(float tau)
 {
     // if(tau > actuator_torque_limit) tau = actuator_torque_limit;
@@ -133,7 +136,8 @@ void rmd_motor::SetVelocityData(float vel)
 void rmd_motor::SetPositionData(float max_speed, float pos)
 {
 
-    int32_t param = static_cast<int32_t>(pos*100.0);
+    // float param_data = 100*(pos + (1031.32)*initial_theta);
+    int32_t param = static_cast<int32_t>(100*pos);
     int32_t speed = static_cast<int32_t>(max_speed);
 
     reference_data[0] = 0xA4 & 0xFF;
@@ -150,7 +154,7 @@ void rmd_motor::SetPositionData(float max_speed, float pos)
 
 }
 
-// ID 0x20 0x02 0x00 0x00 0x01 0x00 0x00 0x00
+
 void rmd_motor::EnableFilter()
 {
     reference_data[0] = 0x20 & 0xFF;
@@ -170,6 +174,36 @@ void rmd_motor::EnableMotor()
     initialize_position = true;
 
     reference_data[0] = 0x88 & 0xFF;
+    reference_data[1] = 0x00 & 0xFF;
+    reference_data[2] = 0x00 & 0xFF;
+    reference_data[3] = 0x00 & 0xFF;
+    reference_data[4] = 0x00 & 0xFF;
+    reference_data[5] = 0x00 & 0xFF;
+    reference_data[6] = 0x00 & 0xFF;
+    reference_data[7] = 0x00 & 0xFF;
+}
+
+void rmd_motor::DisableMotor()
+{
+    motor_run_flag = false;
+    initialize_position = false;
+
+    reference_data[0] = 0x80 & 0xFF;
+    reference_data[1] = 0x00 & 0xFF;
+    reference_data[2] = 0x00 & 0xFF;
+    reference_data[3] = 0x00 & 0xFF;
+    reference_data[4] = 0x00 & 0xFF;
+    reference_data[5] = 0x00 & 0xFF;
+    reference_data[6] = 0x00 & 0xFF;
+    reference_data[7] = 0x00 & 0xFF;
+}
+
+void rmd_motor::StopMotor()
+{
+    motor_run_flag = false;
+    initialize_position = true;
+
+    reference_data[0] = 0x81 & 0xFF;
     reference_data[1] = 0x00 & 0xFF;
     reference_data[2] = 0x00 & 0xFF;
     reference_data[3] = 0x00 & 0xFF;

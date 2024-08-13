@@ -7,6 +7,7 @@
 #include "rt_utils.h"
 
 #define PI 3.141592
+#define RAD2COMMAND 1031.32
 
 class rmd_motor
 {
@@ -28,6 +29,7 @@ public:
     int     actuator_gear_ratio;
     int     actuator_direction;
     float   actuator_torque_limit;
+    double  initial_theta;
     float   joint_initial_position;
     float   filtered_data;
     float   filtered_torque;
@@ -35,10 +37,11 @@ public:
     float   torque_to_data;
     double  data_to_radian;
     int     direction;
-    float     pre_pos;
+    float   pre_pos;
 
     void    EnableMotor();
     void    DisableMotor();
+    void    StopMotor();
     void    EnableFilter();
     void    UpdateRxData(void);
     void    UpdateRxData2(void);
@@ -46,6 +49,7 @@ public:
     void    SetVelocityData(float);
     void    SetPositionData(float, float);
     void    SetGainDatas(float);
+    void    SetInitialTheta() { initial_theta = joint_theta; }
     float   GetTheta();
     float   GetThetaV3();
     float   GetThetaDot();
@@ -65,6 +69,8 @@ private:
 
     float   joint_theta_92;
     float   joint_theta_offset_92;
+
+    bool    is_theta_initialize = false;
 };
 
 #endif // RMD_MOTOR_H

@@ -42,6 +42,7 @@ public:
   void SetPosition(VectorXd theta);  
   void EnableMotor();
   void EnableFilter();
+  void SetInitialTheta();
 };
 
 

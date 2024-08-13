@@ -15,9 +15,9 @@ rmd_can::rmd_can()
     reference_msg[1].header = 0x89;     reference_msg[1].id = 0x142;
     reference_msg[2].header = 0x89;     reference_msg[2].id = 0x143;
     reference_msg[3].header = 0x89;     reference_msg[3].id = 0x144;
-    //  channel b
     reference_msg[4].header = 0x89;     reference_msg[4].id = 0x145;
     reference_msg[5].header = 0x89;     reference_msg[5].id = 0x146;
+    //  channel b
     reference_msg[6].header = 0x77;     reference_msg[6].id = 0x147;
     reference_msg[7].header = 0x77;     reference_msg[7].id = 0x148;
     reference_msg[8].header = 0x77;     reference_msg[8].id = 0x149;
@@ -31,9 +31,9 @@ rmd_can::rmd_can()
     reference_msg[13].header = 0x89;     reference_msg[13].id = 0x14e;
     reference_msg[14].header = 0x89;     reference_msg[14].id = 0x14f;
     reference_msg[15].header = 0x89;     reference_msg[15].id = 0x150;
-    //  channel d
     reference_msg[16].header = 0x89;     reference_msg[16].id = 0x151;
     reference_msg[17].header = 0x89;     reference_msg[17].id = 0x152;
+    //  channel d
     reference_msg[18].header = 0x77;     reference_msg[18].id = 0x153;
     reference_msg[19].header = 0x77;     reference_msg[19].id = 0x154;
     reference_msg[20].header = 0x77;     reference_msg[20].id = 0x155;
