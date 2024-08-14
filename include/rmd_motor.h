@@ -5,6 +5,7 @@
 #include <math.h>
 #include "rmd_can.h"
 #include "rt_utils.h"
+#include "NumericalTool.h"
 
 #define PI 3.141592
 #define RAD2COMMAND 1031.32
@@ -50,15 +51,18 @@ public:
     void    SetPositionData(float, float);
     void    SetGainDatas(float);
     void    SetInitialTheta() { initial_theta = joint_theta; }
-    float   GetTheta();
+    float   JointSpacePD(float, float, float);
+    float   GetTheta() { return joint_theta; }
     float   GetThetaV3();
-    float   GetThetaDot();
-    float   GetTorque();
+    float   GetThetaDot() { return joint_velocity; }
+    float   GetTorque() { return joint_torque; }
 
 private:
-    float   joint_velocity;
-    float   joint_theta;
-    float   joint_torque;
+    NumericalTool::LowPassFilter velLPF;
+
+    float   joint_velocity = 0;
+    float   joint_theta = 0;
+    float   joint_torque = 0;
     float   joint_torque_old;
     float   torque_data_old;
     float   joint_temperature;

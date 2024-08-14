@@ -1,8 +1,5 @@
 #include "motor_controller.h"
 
-extern pRBCORE_SHM sharedData;
-extern rmd_motor _DEV_MC[NUM_OF_RMD];
-
 Motor_Controller::Motor_Controller()
 {
   _DEV_MC[0].actuator_direction =  -1.;  _DEV_MC[0].actuator_gear_ratio = 1.;      _DEV_MC[0].joint_initial_position = 0; 
@@ -112,43 +109,32 @@ void Motor_Controller::EnableMotor()
   sharedData->rmd_motor_run_flag[22] = true; 
   sharedData->rmd_motor_run_flag[23] = true; 
 
-
-  for(uint8_t i=0; i<NUM_OF_RMD; i++) 
-  { 
+  for(uint8_t i=0; i<NUM_OF_RMD; i++) { 
     _DEV_MC[i].DisableMotor();
     _DEV_MC[i].EnableMotor();
-    _DEV_MC[i].SetTorqueData(0);
   }
 
 }
 
-
-VectorXd Motor_Controller::GetJointTheta(){
-  for(uint8_t i=0; i<NUM_OF_RMD; i++)
-  {
-    th_joint[i] = _DEV_MC[i].GetTheta();
-  }
+VectorXd Motor_Controller::GetJointTheta()
+{
+  for(uint8_t i=0; i<NUM_OF_RMD; i++) { th_joint[i] = _DEV_MC[i].GetTheta(); }
   return th_joint;
 }
 
 
 VectorXd Motor_Controller::GetThetaDot()
 {
-  for(uint8_t i=0; i<NUM_OF_RMD; i++) 
-  {
-    th_dot[i] = _DEV_MC[i].GetThetaDot();
-
-  }  
+  for(uint8_t i=0; i<NUM_OF_RMD; i++) { th_dot[i] = _DEV_MC[i].GetThetaDot(); }  
   return th_dot;
 }
 
 // Simple Moving Average filtered Joint Velocity
 VectorXd Motor_Controller::GetThetaDotSMAF()
 {
-  for(uint8_t i=0; i<NUM_OF_RMD; i++) 
-  {
-    th_dot[i] = _DEV_MC[i].GetThetaDot();
-  }
+
+  for(uint8_t i=0; i<NUM_OF_RMD; i++)  { th_dot[i] = _DEV_MC[i].GetThetaDot(); }
+
   sma << sma.block<FILTER_WINDOW_SIZE-1, NUM_OF_RMD>(1, 0), 
       th_dot[0], th_dot[1], th_dot[2], th_dot[3], th_dot[4], th_dot[5], 
       th_dot[6], th_dot[7], th_dot[8], th_dot[9], th_dot[10], th_dot[11];
@@ -156,52 +142,12 @@ VectorXd Motor_Controller::GetThetaDotSMAF()
   th_dot_sma_filtered = sma.colwise().mean();
 
   return th_dot_sma_filtered;
+
 }
 
 VectorXd Motor_Controller::GetTorque()
 {
   VectorXd tau(NUM_OF_RMD); 
-  for(uint8_t i=0; i<NUM_OF_RMD; i++)
-  {
-    tau[i] = _DEV_MC[i].GetTorque();
-  }
+  for(uint8_t i=0; i<NUM_OF_RMD; i++) { tau[i] = _DEV_MC[i].GetTorque(); }
   return tau;
-}
-
-
-void Motor_Controller::SetTorque(VectorXd tau)
-{
-  for(uint8_t i=0; i<NUM_OF_RMD; i++) 
-  {
-    _DEV_MC[i].SetTorqueData(tau[i]);
-  }
-}
-
-void Motor_Controller::SetTorque(float tau)
-{
-  for(uint8_t i=0; i<NUM_OF_RMD; i++) 
-  {
-    _DEV_MC[i].SetTorqueData(tau);
-  }
-}
-
-void Motor_Controller::SetPosition(float max_speed,float pos)
-{
-  for(uint8_t i=0; i<NUM_OF_RMD; i++) 
-  {
-    _DEV_MC[i].SetPositionData(max_speed, pos);
-  }
-}
-
-
-
-void Motor_Controller::EnableFilter(){
-  for(uint8_t i=0; i<NUM_OF_RMD; i++) 
-  {
-    _DEV_MC[i].EnableFilter();
-  }
-}
-
-void Motor_Controller::SetInitialTheta(){
-  for(size_t i=0;i<NUM_OF_RMD;i++){ _DEV_MC[i].SetInitialTheta(); }
 }

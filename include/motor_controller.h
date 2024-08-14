@@ -14,6 +14,9 @@ using Eigen::VectorXd;
 using Eigen::MatrixXd;
 using Eigen::Matrix3d;
 
+extern pRBCORE_SHM sharedData;
+extern rmd_motor _DEV_MC[NUM_OF_RMD];
+
 class Motor_Controller{
 
 public:   
@@ -36,13 +39,14 @@ public:
   VectorXd GetThetaDotSMAF();
   VectorXd GetTorque();
   void ReadTheta();    
-  void SetTorque(VectorXd tau);
-  void SetTorque(float tau);
-  void SetPosition(float max_speed, float pos);
-  void SetPosition(VectorXd theta);  
+  void SetTorque(VectorXd tau)                 { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetTorqueData(tau[i]); } }
+  void SetTorque(float tau)                    { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetTorqueData(tau); } }
+  void SetPosition(float max_speed, float pos) { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetPositionData(max_speed, pos); } }
   void EnableMotor();
-  void EnableFilter();
-  void SetInitialTheta();
+  void DisableMotor()                          { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].DisableMotor(); } }
+  void StopMotor()                             { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].StopMotor(); } }
+  void EnableFilter()                          { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].EnableFilter(); } }
+  void SetInitialTheta()                       { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetInitialTheta(); } }
 };
 
 

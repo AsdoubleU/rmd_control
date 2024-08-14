@@ -2,27 +2,28 @@
 #include "motor_controller.h"
 #include <iostream>
 
-
-rmd_motor::rmd_motor()
-{
-
-}
+rmd_motor::rmd_motor() { }
 
 void rmd_motor::UpdateRxData(void) {
 
+    // joint temparature
     joint_temperature = (int)(feedback_data[1]);
-    
+
+    // joint torque
     int temp_torque = (int)(feedback_data[2] | (feedback_data[3]<<8));
     joint_torque = temp_torque / torque_to_data;
 
     if( joint_torque > 2500 ) { joint_torque = -(joint_torque - 2675); }
     joint_torque = direction*joint_torque;
 
+    // joint angular velocity
     int temp_speed = (int)(feedback_data[4] | (feedback_data[5]<<8));
     if(temp_speed > 30000) temp_speed -= 65535;
     if(is_v3) joint_velocity = 0.028 * temp_speed * actuator_direction;
     else joint_velocity = 0.028 * temp_speed * actuator_direction / actuator_gear_ratio;
+    joint_velocity = velLPF.Filter(joint_velocity,10);
 
+    // joint angle
     int temp_encoder = (int)(feedback_data[6] | (feedback_data[7]<<8));
 
     float temp_theta = temp_encoder / data_to_radian;
@@ -43,11 +44,8 @@ void rmd_motor::UpdateRxData(void) {
 
     temp_encoder_last = temp_encoder;
     joint_theta = temp_theta * actuator_direction * data_to_radian; 
-
-    // if (is_theta_initialize == false && joint_theta < 10.0 && joint_theta > -10.0) {
-    //     is_theta_initialize = true;
-    //     initial_theta = joint_theta;
-    // }
+    if (joint_theta > 7) { joint_theta = 0; }
+    else if (joint_theta < -7) { joint_theta = 0; }
 }
 
 void rmd_motor::UpdateRxData2(void) {
@@ -81,28 +79,13 @@ void rmd_motor::UpdateRxData2(void) {
 
 }
 
-
-float rmd_motor::GetTheta() 
-{
-    return joint_theta;
-}
-
-
-float rmd_motor::GetThetaDot() 
-{
-    return joint_velocity;
-}
-
-
-float rmd_motor::GetTorque()
-{
-    return joint_torque;
-}
-
 void rmd_motor::SetTorqueData(float tau)
 {
     // if(tau > actuator_torque_limit) tau = actuator_torque_limit;
     // else if(tau < -1 * actuator_torque_limit) tau = -1 * actuator_torque_limit;
+
+    if(tau > actuator_torque_limit) tau = 0;
+    else if(tau < -1 * actuator_torque_limit) tau = 0;
     
     long param = actuator_direction * torque_to_data * tau;
     reference_data[0] = 0xA1 & 0xFF;
@@ -223,4 +206,9 @@ void rmd_motor::SetGainDatas(float gain)
     reference_data[5] = 0x00 & 0xFF;
     reference_data[6] = 0x00 & 0xFF;
     reference_data[7] = 0x00 & 0xFF;
+}
+
+float rmd_motor::JointSpacePD(float Kp, float Kd, float ref) 
+{ 
+    return -( Kp*(ref-joint_theta) - Kd*joint_velocity ); 
 }

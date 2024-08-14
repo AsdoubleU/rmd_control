@@ -2,8 +2,12 @@
 #include "rt_utils.h"
 #include "motor_controller.h"
 #include "callback.h"
-#include "ros_plot.h"
 #include "TrajectoryGenerator.h"
+#include <sensor_msgs/JointState.h>
+#include <ros/node_handle.h>
+#include <std_msgs/Float64.h>
+
+#define RAD2DEG 57.2957914
 
 float reference;
 float ddot_old;
@@ -22,6 +26,14 @@ FILE *ANGLE[24];
 FILE *ANGULAR_VELOCITY[24];
 FILE *TORQUE[24];
 
+ros::Publisher p_reference;
+ros::Publisher p_joint_state;
+
+std_msgs::Float64 m_angle[24];
+std_msgs::Float64 m_angular_velocity[24];
+std_msgs::Float64 m_torque[24];
+std_msgs::Float64 m_reference;
+
 int main(int argc, char *argv[])
 {
     ros::init(argc, argv, "rmd_control");
@@ -37,82 +49,15 @@ int main(int argc, char *argv[])
 
     int thread_id_motion = generate_rt_thread(thread_motion, rt_motion_thread, "motion_thread", 3, 95, NULL);
 
-    p_angle[0] = node_handle_.advertise<std_msgs::Float64>("/angle_1/",1);
-    p_angle[1] = node_handle_.advertise<std_msgs::Float64>("/angle_2/",1);
-    p_angle[2] = node_handle_.advertise<std_msgs::Float64>("/angle_3/",1);
-    p_angle[3] = node_handle_.advertise<std_msgs::Float64>("/angle_4/",1);
-    p_angle[4] = node_handle_.advertise<std_msgs::Float64>("/angle_5/",1);
-    p_angle[5] = node_handle_.advertise<std_msgs::Float64>("/angle_6/",1);
-    p_angle[6] = node_handle_.advertise<std_msgs::Float64>("/angle_7/",1);
-    p_angle[7] = node_handle_.advertise<std_msgs::Float64>("/angle_8/",1);
-    p_angle[8] = node_handle_.advertise<std_msgs::Float64>("/angle_9/",1);
-    p_angle[9] = node_handle_.advertise<std_msgs::Float64>("/angle_10/",1);
-    p_angle[10] = node_handle_.advertise<std_msgs::Float64>("/angle_11/",1);
-    p_angle[11] = node_handle_.advertise<std_msgs::Float64>("/angle_12/",1);
-    p_angle[12] = node_handle_.advertise<std_msgs::Float64>("/angle_13/",1);
-    p_angle[13] = node_handle_.advertise<std_msgs::Float64>("/angle_14/",1);
-    p_angle[14] = node_handle_.advertise<std_msgs::Float64>("/angle_15/",1);
-    p_angle[15] = node_handle_.advertise<std_msgs::Float64>("/angle_16/",1);
-    p_angle[16] = node_handle_.advertise<std_msgs::Float64>("/angle_17/",1);
-    p_angle[17] = node_handle_.advertise<std_msgs::Float64>("/angle_18/",1);
-    p_angle[18] = node_handle_.advertise<std_msgs::Float64>("/angle_19/",1);
-    p_angle[19] = node_handle_.advertise<std_msgs::Float64>("/angle_20/",1);
-    p_angle[20] = node_handle_.advertise<std_msgs::Float64>("/angle_21/",1);
-    p_angle[21] = node_handle_.advertise<std_msgs::Float64>("/angle_22/",1);
-    p_angle[22] = node_handle_.advertise<std_msgs::Float64>("/angle_23/",1);
-    p_angle[23] = node_handle_.advertise<std_msgs::Float64>("/angle_24/",1);
-
-    p_angular_velocity[0] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_1/",1);
-    p_angular_velocity[1] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_2/",1);
-    p_angular_velocity[2] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_3/",1);
-    p_angular_velocity[3] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_4/",1);
-    p_angular_velocity[4] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_5/",1);
-    p_angular_velocity[5] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_6/",1);
-    p_angular_velocity[6] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_7/",1);
-    p_angular_velocity[7] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_8/",1);
-    p_angular_velocity[8] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_9/",1);
-    p_angular_velocity[9] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_10/",1);
-    p_angular_velocity[10] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_11/",1);
-    p_angular_velocity[11] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_12/",1);
-    p_angular_velocity[12] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_13/",1);
-    p_angular_velocity[13] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_14/",1);
-    p_angular_velocity[14] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_15/",1);
-    p_angular_velocity[15] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_16/",1);
-    p_angular_velocity[16] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_17/",1);
-    p_angular_velocity[17] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_18/",1);
-    p_angular_velocity[18] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_19/",1);
-    p_angular_velocity[19] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_20/",1);
-    p_angular_velocity[20] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_21/",1);
-    p_angular_velocity[21] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_22/",1);
-    p_angular_velocity[22] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_23/",1);
-    p_angular_velocity[23] = node_handle_.advertise<std_msgs::Float64>("/angular_velocity_24/",1);
-
-    p_torque[0] = node_handle_.advertise<std_msgs::Float64>("/torque_1/",1);
-    p_torque[1] = node_handle_.advertise<std_msgs::Float64>("/torque_2/",1);
-    p_torque[2] = node_handle_.advertise<std_msgs::Float64>("/torque_3/",1);
-    p_torque[3] = node_handle_.advertise<std_msgs::Float64>("/torque_4/",1);
-    p_torque[4] = node_handle_.advertise<std_msgs::Float64>("/torque_5/",1);
-    p_torque[5] = node_handle_.advertise<std_msgs::Float64>("/torque_6/",1);
-    p_torque[6] = node_handle_.advertise<std_msgs::Float64>("/torque_7/",1);
-    p_torque[7] = node_handle_.advertise<std_msgs::Float64>("/torque_8/",1);
-    p_torque[8] = node_handle_.advertise<std_msgs::Float64>("/torque_9/",1);
-    p_torque[9] = node_handle_.advertise<std_msgs::Float64>("/torque_10/",1);
-    p_torque[10] = node_handle_.advertise<std_msgs::Float64>("/torque_11/",1);
-    p_torque[11] = node_handle_.advertise<std_msgs::Float64>("/torque_12/",1);
-    p_torque[12] = node_handle_.advertise<std_msgs::Float64>("/torque_13/",1);
-    p_torque[13] = node_handle_.advertise<std_msgs::Float64>("/torque_14/",1);
-    p_torque[14] = node_handle_.advertise<std_msgs::Float64>("/torque_15/",1);
-    p_torque[15] = node_handle_.advertise<std_msgs::Float64>("/torque_16/",1);
-    p_torque[16] = node_handle_.advertise<std_msgs::Float64>("/torque_17/",1);
-    p_torque[17] = node_handle_.advertise<std_msgs::Float64>("/torque_18/",1);
-    p_torque[18] = node_handle_.advertise<std_msgs::Float64>("/torque_19/",1);
-    p_torque[19] = node_handle_.advertise<std_msgs::Float64>("/torque_20/",1);
-    p_torque[20] = node_handle_.advertise<std_msgs::Float64>("/torque_21/",1);
-    p_torque[21] = node_handle_.advertise<std_msgs::Float64>("/torque_22/",1);
-    p_torque[22] = node_handle_.advertise<std_msgs::Float64>("/torque_23/",1);
-    p_torque[23] = node_handle_.advertise<std_msgs::Float64>("/torque_24/",1);
-
     p_reference = node_handle_.advertise<std_msgs::Float64>("/reference/",1);
+    p_joint_state = node_handle_.advertise<sensor_msgs::JointState>("/rmd_joint_states",1);
+
+    sensor_msgs::JointState m_joint_state;
+    m_joint_state.name.resize(NUM_OF_RMD);
+    m_joint_state.position.resize(NUM_OF_RMD);
+    m_joint_state.velocity.resize(NUM_OF_RMD);
+    m_joint_state.effort.resize(NUM_OF_RMD);
+    for(size_t i=0;i<NUM_OF_RMD;i++){ m_joint_state.name[i] = "joint_" + std::to_string(i+1); }
 
     REFERENCE = fopen("/home/sthexa/data/reference.dat","w");
 
@@ -157,27 +102,26 @@ int main(int argc, char *argv[])
 
     while(ros::ok())
     {
-        ros::Time current_time = ros::Time::now();
+        ros::Time current_time = ros::Time::now(); 
+        m_joint_state.header.stamp = current_time;
 
-        for(size_t i=0;i<NUM_OF_RMD;i++){
-            m_angle[i].data = _DEV_MC[i].GetTheta()*RAD2DEG;
-            m_angular_velocity[i].data = _DEV_MC[i].GetThetaDot();
-            m_torque[i].data = _DEV_MC[i].GetTorque();
-            p_angle[i].publish(m_angle[i]);
-            p_angular_velocity[i].publish(m_angular_velocity[i]);
-            p_torque[i].publish(m_torque[i]);
-        }
         // m_reference.data = reference*30/1080;
-        m_reference.data = reference/1080*30;
+        m_reference.data = reference;
         p_reference.publish(m_reference);
 
         fprintf(REFERENCE, "%lf\n", reference);
 
-        for(size_t i=0;i<NUM_OF_ACTUATORS;i++){
+        for(size_t i=0;i<NUM_OF_RMD;i++){
             fprintf(ANGLE[i], "%lf\n", _DEV_MC[i].GetTheta()*RAD2DEG );
             fprintf(ANGULAR_VELOCITY[i], "%lf\n", _DEV_MC[i].GetThetaDot() );
             fprintf(TORQUE[i], "%lf\n", _DEV_MC[i].GetTorque() );
+
+            m_joint_state.position[i] = _DEV_MC[i].GetTheta()*RAD2DEG;
+            m_joint_state.velocity[i] = _DEV_MC[i].GetThetaDot();
+            m_joint_state.effort[i] = _DEV_MC[i].GetTorque();
         }
+
+        p_joint_state.publish(m_joint_state);
 
         ros::spinOnce();
         loop_rate.sleep();
