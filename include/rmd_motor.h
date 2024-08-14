@@ -9,6 +9,7 @@
 
 #define PI 3.141592
 #define RAD2COMMAND 1031.32
+#define DATA2RAD    0.00523333
 
 class rmd_motor
 {

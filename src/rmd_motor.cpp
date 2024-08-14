@@ -21,7 +21,7 @@ void rmd_motor::UpdateRxData(void) {
     if(temp_speed > 30000) temp_speed -= 65535;
     if(is_v3) joint_velocity = 0.028 * temp_speed * actuator_direction;
     else joint_velocity = 0.028 * temp_speed * actuator_direction / actuator_gear_ratio;
-    joint_velocity = velLPF.Filter(joint_velocity,10);
+    joint_velocity = velLPF.Filter(joint_velocity,10)*DATA2RAD;
 
     // joint angle
     int temp_encoder = (int)(feedback_data[6] | (feedback_data[7]<<8));
@@ -44,8 +44,8 @@ void rmd_motor::UpdateRxData(void) {
 
     temp_encoder_last = temp_encoder;
     joint_theta = temp_theta * actuator_direction * data_to_radian; 
-    if (joint_theta > 7) { joint_theta = 0; }
-    else if (joint_theta < -7) { joint_theta = 0; }
+    if (joint_theta > 7 || joint_theta < -7) { joint_theta = 0; }
+
 }
 
 void rmd_motor::UpdateRxData2(void) {
@@ -83,9 +83,6 @@ void rmd_motor::SetTorqueData(float tau)
 {
     // if(tau > actuator_torque_limit) tau = actuator_torque_limit;
     // else if(tau < -1 * actuator_torque_limit) tau = -1 * actuator_torque_limit;
-
-    if(tau > actuator_torque_limit) tau = 0;
-    else if(tau < -1 * actuator_torque_limit) tau = 0;
     
     long param = actuator_direction * torque_to_data * tau;
     reference_data[0] = 0xA1 & 0xFF;
@@ -120,7 +117,7 @@ void rmd_motor::SetPositionData(float max_speed, float pos)
 {
 
     // float param_data = 100*(pos + (1031.32)*initial_theta);
-    int32_t param = static_cast<int32_t>(100*pos);
+    int32_t param = static_cast<int32_t>(206369.427*pos);
     int32_t speed = static_cast<int32_t>(max_speed);
 
     reference_data[0] = 0xA4 & 0xFF;

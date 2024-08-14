@@ -55,6 +55,7 @@ void *rt_motion_thread(void *arg){
             }
             
             if(thread_loop_count > 4998) {
+                ROS_INFO("Motor is zero position");
                 motor_ctrl.DisableMotor();
                 for(size_t i=0;i<NUM_OF_ACTUATORS;i++){
                     traj[i].isEnd = false;
@@ -72,20 +73,20 @@ void *rt_motion_thread(void *arg){
 
         else if(thread_loop_count > 6000) {
             
-            // reference = 1080*sin((motion_time)/0.3);
-            // motor_ctrl.SetPosition(8000, reference);
             reference = 30*sin((motion_time)/0.3);
-            _DEV_MC[0].SetTorqueData( _DEV_MC[0].JointSpacePD(10.0,0.,reference/RAD2DEG) );
+            motor_ctrl.SetPosition(8000, reference*DEG2RAD);
+            // reference = 30*sin((motion_time)/0.3);
+            // _DEV_MC[0].SetTorqueData( _DEV_MC[0].JointSpacePD(10.0,0.,reference/RAD2DEG) );
             // motor_ctrl.SetTorque( reference );
             // motor_ctrl.SetTorque( 0 );
             // _DEV_MC[0].SetVelocityDta( 8000.*sin(control_time/0.3) );
 
             // if(mode == 0) {
             //     for(size_t i=0;i<NUM_OF_ACTUATORS;i++) { 
-            //         traj[i].SetSinusoidalTrajectory(2160., 0., 1.0);
+            //         traj[i].SetSinusoidalTrajectory(60., 0., 1.0);
             //         reference = traj[0].GetRefvar();
             //         // if(!traj[i].isEnd) _DEV_MC[i].SetPositionData(8000,traj[i].GetRefvar());
-            //         if(!traj[i].isEnd) _DEV_MC[i].SetTorqueData( _DEV_MC[i].JointSpacePD(0.2,0.,traj[i].GetRefvar()) );
+            //         if(!traj[i].isEnd) _DEV_MC[i].SetTorqueData( _DEV_MC[i].JointSpacePD(10,0.,traj[i].GetRefvar()*DEG2RAD) );
             //     }
 
             //     if(motion_time > 1.0) {
@@ -99,10 +100,10 @@ void *rt_motion_thread(void *arg){
 
             // else if(mode == 1) {
             //     for(size_t i=0;i<NUM_OF_ACTUATORS;i++) { 
-            //         traj[i].SetSinusoidalTrajectory(1080., 2160., 1.0);
+            //         traj[i].SetSinusoidalTrajectory(30., 60., 1.0);
             //         reference = traj[0].GetRefvar();
             //         // if(!traj[i].isEnd) _DEV_MC[i].SetPositionData(8000,traj[i].GetRefvar());
-            //         if(!traj[i].isEnd) _DEV_MC[i].SetTorqueData( _DEV_MC[i].JointSpacePD(0.2,0.,traj[i].GetRefvar()) );
+            //         if(!traj[i].isEnd) _DEV_MC[i].SetTorqueData( _DEV_MC[i].JointSpacePD(10,0.,traj[i].GetRefvar()*DEG2RAD) );
             //     }
 
             //     if(motion_time > 2.0) {
@@ -116,10 +117,10 @@ void *rt_motion_thread(void *arg){
 
             // else if(mode == 2) {
             //     for(size_t i=0;i<NUM_OF_ACTUATORS;i++) { 
-            //         traj[i].SetSinusoidalTrajectory(0., 1080., 1.0);
+            //         traj[i].SetSinusoidalTrajectory(0., 30., 1.0);
             //         reference = traj[0].GetRefvar();
             //         // if(!traj[i].isEnd) _DEV_MC[i].SetPositionData(8000,traj[i].GetRefvar());
-            //         if(!traj[i].isEnd) _DEV_MC[i].SetTorqueData( _DEV_MC[i].JointSpacePD(0.2,0.,traj[i].GetRefvar()) );
+            //         if(!traj[i].isEnd) _DEV_MC[i].SetTorqueData( _DEV_MC[i].JointSpacePD(10,0.,traj[i].GetRefvar()*DEG2RAD) );
             //     }
 
             //     if(motion_time > 3.0) {
