@@ -81,8 +81,8 @@ void rmd_motor::UpdateRxData2(void) {
 
 void rmd_motor::SetTorqueData(float tau)
 {
-    // if(tau > actuator_torque_limit) tau = actuator_torque_limit;
-    // else if(tau < -1 * actuator_torque_limit) tau = -1 * actuator_torque_limit;
+    if(tau > actuator_torque_limit) tau = actuator_torque_limit;
+    else if(tau < -1 * actuator_torque_limit) tau = -1 * actuator_torque_limit;
     
     long param = actuator_direction * torque_to_data * tau;
     reference_data[0] = 0xA1 & 0xFF;
@@ -205,7 +205,24 @@ void rmd_motor::SetGainDatas(float gain)
     reference_data[7] = 0x00 & 0xFF;
 }
 
-float rmd_motor::JointSpacePD(float Kp, float Kd, float ref) 
+void rmd_motor::JointSpacePD(float Kp, float Kd, float ref, float ref_vel) 
 { 
-    return -( Kp*(ref-joint_theta) - Kd*joint_velocity ); 
+    float tau = -( Kp*(ref-joint_theta) + Kd*(ref_vel - joint_velocity) ); 
+
+    if(tau > actuator_torque_limit) tau = actuator_torque_limit;
+    else if(tau < -1 * actuator_torque_limit) tau = -1 * actuator_torque_limit;
+    
+    long param = actuator_direction * torque_to_data * tau;
+    reference_data[0] = 0xA1 & 0xFF;
+    reference_data[1] = 0x00 & 0xFF;
+    reference_data[2] = 0x00 & 0xFF;
+    reference_data[3] = 0x00 & 0xFF;
+    reference_data[4] = (param     ) & 0xFF;
+    reference_data[5] = (param >> 8) & 0xFF;
+    reference_data[6] = 0x00 & 0xFF;
+    reference_data[7] = 0x00 & 0xFF;
+
+    if(tau >= 0) { direction = 1; } else { direction = -1; }
+
+
 }

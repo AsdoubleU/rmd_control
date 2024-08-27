@@ -52,7 +52,7 @@ public:
     void    SetPositionData(float, float);
     void    SetGainDatas(float);
     void    SetInitialTheta() { initial_theta = joint_theta; }
-    float   JointSpacePD(float, float, float);
+    void   JointSpacePD(float, float, float, float);
     float   GetTheta() { return joint_theta; }
     float   GetThetaV3();
     float   GetThetaDot() { return joint_velocity; }

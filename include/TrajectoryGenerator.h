@@ -22,6 +22,7 @@ public:
     Eigen::VectorXd GetRefVarDot() { return ref_vardot_; }
     Eigen::VectorXd GetRefVarDDot() { return ref_varddot_; }
     double GetRefvar() { return ref_var_(0); }
+    double GetRefvardot() { return ref_vardot_(0); }
 
     double t_;
     Eigen::VectorXd pre_ref_var_, pre_ref_vardot_, pre_ref_varddot_;
