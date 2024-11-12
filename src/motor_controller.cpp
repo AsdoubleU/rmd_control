@@ -80,6 +80,11 @@ Motor_Controller::Motor_Controller()
 
 void Motor_Controller::EnableMotor()
 {
+  for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].EnableMotor(); }
+}
+
+void Motor_Controller::DisableMotor()
+{
   // SPI 1.0  CH A
   sharedData->rmd_motor_run_flag[0] = true;  
   sharedData->rmd_motor_run_flag[1] = true;  
@@ -111,7 +116,6 @@ void Motor_Controller::EnableMotor()
 
   for(uint8_t i=0; i<NUM_OF_RMD; i++) { 
     _DEV_MC[i].DisableMotor();
-    _DEV_MC[i].EnableMotor();
   }
 
 }

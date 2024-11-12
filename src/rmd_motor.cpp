@@ -4,7 +4,12 @@
 
 rmd_motor::rmd_motor() { }
 
-void rmd_motor::UpdateRxData(void) {
+rmd_motor::~rmd_motor() {
+    
+}
+
+void rmd_motor::UpdateRxData(void) 
+{
 
     // joint temparature
     joint_temperature = (int)(feedback_data[1]);
@@ -48,7 +53,8 @@ void rmd_motor::UpdateRxData(void) {
 
 }
 
-void rmd_motor::UpdateRxData2(void) {
+void rmd_motor::UpdateRxData2(void) 
+{
     joint_temperature = (int)(feedback_data[1]);
     
     int temp_torque = (int)(feedback_data[2] | (feedback_data[3]<<8));
@@ -77,6 +83,24 @@ void rmd_motor::UpdateRxData2(void) {
         else if (incremental_theta < -1143) incremental_theta = -0.0174532925;
     joint_theta += incremental_theta * actuator_direction;
 
+}
+
+void rmd_motor::UpdatePidData(void)
+{
+    angle_pid_kp = (int)(feedback_data[2] | (feedback_data[3]<<8));
+    angle_pid_ki = (int)(feedback_data[4] | (feedback_data[5]<<8));
+    angle_pid_kd = (int)(feedback_data[6] | (feedback_data[7]<<8));
+
+    angle_pid_kp = angle_pid_kp * 0.001;
+    angle_pid_ki = angle_pid_ki * 0.00001;
+    angle_pid_kd = angle_pid_kd * 0.00001;
+}
+
+void rmd_motor::PrintGainDatas()
+{
+    std::cout<< "angle P gain : "<<angle_pid_kp<<std::endl;
+    std::cout<< "angle I gain : "<<angle_pid_ki<<std::endl;
+    std::cout<< "angle D gain : "<<angle_pid_kd<<std::endl<<std::endl;
 }
 
 void rmd_motor::SetTorqueData(float tau)
@@ -193,9 +217,32 @@ void rmd_motor::StopMotor()
     reference_data[7] = 0x00 & 0xFF;
 }
 
-void rmd_motor::SetGainDatas(float gain)
+void rmd_motor::SetGainDatas(float angle_kp, float angle_ki, float angle_kd)
 {
+    
+    angle_pid_kp = angle_kp;
+    angle_pid_ki = angle_ki;
+    angle_pid_kd = angle_kd;
+
+    int32_t kp_data = static_cast<int32_t>(angle_kp * 1000);
+    int32_t ki_data = static_cast<int32_t>(angle_ki * 100000);
+    int32_t kd_data = static_cast<int32_t>(angle_kd * 100000);
+
     reference_data[0] = 0x32 & 0xFF;
+    reference_data[1] = 0x00 & 0xFF;
+    reference_data[2] = (kp_data     ) & 0xFF;
+    reference_data[3] = (kp_data >> 8) & 0xFF;
+    reference_data[4] = (ki_data     ) & 0xFF;
+    reference_data[5] = (ki_data >> 8) & 0xFF;
+    reference_data[6] = (kd_data     ) & 0xFF;
+    reference_data[7] = (kd_data >> 8) & 0xFF;
+
+}
+
+void rmd_motor::ReadGainDatas()
+{
+
+    reference_data[0] = 0x30 & 0xFF;
     reference_data[1] = 0x00 & 0xFF;
     reference_data[2] = 0x00 & 0xFF;
     reference_data[3] = 0x00 & 0xFF;
@@ -203,6 +250,7 @@ void rmd_motor::SetGainDatas(float gain)
     reference_data[5] = 0x00 & 0xFF;
     reference_data[6] = 0x00 & 0xFF;
     reference_data[7] = 0x00 & 0xFF;
+
 }
 
 void rmd_motor::JointSpacePD(float Kp, float Kd, float ref, float ref_vel) 

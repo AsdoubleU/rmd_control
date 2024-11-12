@@ -18,6 +18,7 @@ typedef union{
 class spi2can
 {
     spi2can();
+    ~spi2can();
 
     int spi_1_fd;
     int spi_2_fd;

@@ -37,7 +37,6 @@ spi2can::spi2can()
 #endif
 }
 
-
 void *spi2can::spi2can_thread(void *arg){
     const long PERIOD_US = RT_MS * 1000;
     struct timespec TIME_NEXT;
@@ -134,13 +133,17 @@ void *spi2can::spi2can_thread(void *arg){
 
                 if(id>=0x140 && id<=0x240+RMD_COUNT){
                     int bno = 0;
-                    if(id>=0x240) bno = id-0x240;
-                    else bno = id-0x00000141;
+                    bno = id-0x00000141;
                     _DEV_MC[bno].count++;
                     if(recv_data1[0] == 0xA1 || recv_data1[0] == 0xA2 || recv_data1[0] == 0xA4){ 
                         for(int j=0; j<dlc; j++) _DEV_MC[bno].feedback_data[j] = recv_data1[j];
                         if(_DEV_MC[bno].data_to_radian == DATA_TO_RADIAN)  _DEV_MC[bno].UpdateRxData();
                         else _DEV_MC[bno].UpdateRxData2();
+                        _DEV_MC[bno].count_A1++;
+                    }
+                    else if (recv_data1[0] == 0x30){
+                        for(int j=0; j<dlc; j++) _DEV_MC[bno].feedback_data[j] = recv_data1[j];
+                        _DEV_MC[bno].UpdatePidData();
                         _DEV_MC[bno].count_A1++;
                     }
                     else
@@ -162,13 +165,17 @@ void *spi2can::spi2can_thread(void *arg){
 
                 if(id>=0x140 && id<=0x240+RMD_COUNT){
                     int bno = 0;
-                    if(id>=0x240) bno = id-0x240;
-                    else bno = id-0x00000141;
+                    bno = id-0x00000141;
                     _DEV_MC[bno].count++;
                     if(recv_data2[0] == 0xA1 || recv_data2[0] == 0xA2 || recv_data2[0] == 0xA4){ 
                         for(int j=0; j<dlc; j++) _DEV_MC[bno].feedback_data[j] = recv_data2[j];
                         if(_DEV_MC[bno].data_to_radian == DATA_TO_RADIAN)  _DEV_MC[bno].UpdateRxData();
                         else _DEV_MC[bno].UpdateRxData2();
+                        _DEV_MC[bno].count_A1++;
+                    }
+                    else if (recv_data2[0] == 0x30){
+                        for(int j=0; j<dlc; j++) _DEV_MC[bno].feedback_data[j] = recv_data2[j];
+                        _DEV_MC[bno].UpdatePidData();
                         _DEV_MC[bno].count_A1++;
                     }
                     else
@@ -234,4 +241,9 @@ int spi2can::init_spi(){
     rv = ioctl(spi_2_fd, SPI_IOC_RD_LSB_FIRST, &lsb);
     if (rv < 0) perror("[ERROR] ioctl spi_ioc_rd_lsb_first (2)");
     return rv;
+}
+
+spi2can::~spi2can()
+{
+    
 }

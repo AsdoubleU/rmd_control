@@ -43,10 +43,12 @@ public:
   void SetTorque(float tau)                    { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetTorqueData(tau); } }
   void SetPosition(float max_speed, float pos) { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetPositionData(max_speed, pos); } }
   void EnableMotor();
-  void DisableMotor()                          { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].DisableMotor(); } }
+  void DisableMotor();
   void StopMotor()                             { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].StopMotor(); } }
   void EnableFilter()                          { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].EnableFilter(); } }
   void SetInitialTheta()                       { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetInitialTheta(); } }
+  void ReadGainDatas()                         { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].ReadGainDatas(); } }
+  void PrintGainDatas()                        { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].PrintGainDatas(); } }
 };
 
 

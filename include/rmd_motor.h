@@ -15,6 +15,7 @@ class rmd_motor
 {
 public:
     rmd_motor();
+    ~rmd_motor();
 
     bool    motor_run_flag{false};
 
@@ -47,12 +48,15 @@ public:
     void    EnableFilter();
     void    UpdateRxData(void);
     void    UpdateRxData2(void);
+    void    UpdatePidData(void);
     void    SetTorqueData(float);
     void    SetVelocityData(float);
     void    SetPositionData(float, float);
-    void    SetGainDatas(float);
+    void    SetGainDatas(float, float, float);
+    void    ReadGainDatas();
+    void    PrintGainDatas();
     void    SetInitialTheta() { initial_theta = joint_theta; }
-    void   JointSpacePD(float, float, float, float);
+    void    JointSpacePD(float, float, float, float);
     float   GetTheta() { return joint_theta; }
     float   GetThetaV3();
     float   GetThetaDot() { return joint_velocity; }
@@ -67,6 +71,9 @@ private:
     float   joint_torque_old;
     float   torque_data_old;
     float   joint_temperature;
+    float   angle_pid_kp;
+    float   angle_pid_ki;
+    float   angle_pid_kd;
 
     float   motor_theta_last;
     float   temp_encoder_last;

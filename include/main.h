@@ -23,10 +23,10 @@ Motor_Controller motor_ctrl;
 Callback callback;
 TrajectoryGenerator traj[NUM_OF_RMD];
 
-FILE *REFERENCE;
-FILE *ANGLE;
-FILE *ANGULAR_VELOCITY;
-FILE *TORQUE;
+// FILE *REFERENCE;
+// FILE *ANGLE;
+// FILE *ANGULAR_VELOCITY;
+// FILE *TORQUE;
 
 ros::Publisher p_reference;
 ros::Publisher p_joint_state;
@@ -63,35 +63,34 @@ int main(int argc, char *argv[])
 
     const char* data_path = DATAPATH;
 
-    REFERENCE = fopen( ((std::string(data_path)) + "reference.dat").c_str(),"w");
-    ANGLE = fopen(((std::string(data_path)) + "angle.dat").c_str(),"w");
-    ANGULAR_VELOCITY = fopen(((std::string(data_path)) + "angular_velocity.dat").c_str(),"w"); 
-    TORQUE = fopen(((std::string(data_path)) + "torque.dat").c_str(),"w");
+    // REFERENCE = fopen( ((std::string(data_path)) + "reference.dat").c_str(),"w");
+    // ANGLE = fopen(((std::string(data_path)) + "angle.dat").c_str(),"w");
+    // ANGULAR_VELOCITY = fopen(((std::string(data_path)) + "angular_velocity.dat").c_str(),"w"); 
+    // TORQUE = fopen(((std::string(data_path)) + "torque.dat").c_str(),"w");
 
     while(ros::ok())
     {
         ros::Time current_time = ros::Time::now(); 
         m_joint_state.header.stamp = current_time;
 
-        // m_reference.data = reference*30/1080;
         m_reference.data = reference;
         p_reference.publish(m_reference);
 
-        fprintf(REFERENCE, "%lf\n", reference);
+        // fprintf(REFERENCE, "%lf\n", reference);
 
         for(size_t i=0;i<NUM_OF_RMD;i++){
-            fprintf(ANGLE, "%lf ", _DEV_MC[i].GetTheta()*RAD2DEG );
-            fprintf(ANGULAR_VELOCITY, "%lf ", _DEV_MC[i].GetThetaDot()*RAD2DEG );
-            fprintf(TORQUE, "%lf ", _DEV_MC[i].GetTorque() );
+            // fprintf(ANGLE, "%lf ", _DEV_MC[i].GetTheta()*RAD2DEG );
+            // fprintf(ANGULAR_VELOCITY, "%lf ", _DEV_MC[i].GetThetaDot()*RAD2DEG );
+            // fprintf(TORQUE, "%lf ", _DEV_MC[i].GetTorque() );
 
             m_joint_state.position[i] = _DEV_MC[i].GetTheta()*RAD2DEG;
             m_joint_state.velocity[i] = _DEV_MC[i].GetThetaDot()*RAD2DEG;
             m_joint_state.effort[i] = _DEV_MC[i].GetTorque();
         }
         
-        fprintf(ANGLE, "\n");
-        fprintf(ANGULAR_VELOCITY, "\n");
-        fprintf(TORQUE, "\n");
+        // fprintf(ANGLE, "\n");
+        // fprintf(ANGULAR_VELOCITY, "\n");
+        // fprintf(TORQUE, "\n");
 
         p_joint_state.publish(m_joint_state);
 
