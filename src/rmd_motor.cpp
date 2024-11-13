@@ -96,6 +96,25 @@ void rmd_motor::UpdatePidData(void)
     angle_pid_kd = angle_pid_kd * 0.00001;
 }
 
+void rmd_motor::UpdateMultiturnAngle(void)
+{
+    int32_t theta = 0x00000000000000;
+    theta = theta | (feedback_data[7] << 48);
+    theta = theta | (feedback_data[6] << 40);
+    theta = theta | (feedback_data[5] << 32);
+    theta = theta | (feedback_data[4] << 24);
+    theta = theta | (feedback_data[3] << 16);
+    theta = theta | (feedback_data[2] << 8);
+    theta = theta | (feedback_data[1]);
+    
+    if(theta & 0x80000000000000) {
+        multiturn_theta = (int)(-((~theta & 0xffffffffffffff) + 1));
+    }
+    else {
+        multiturn_theta = (int)theta;
+    }
+}
+
 void rmd_motor::PrintGainDatas()
 {
     std::cout<< "angle P gain : "<<angle_pid_kp<<std::endl;
@@ -243,6 +262,20 @@ void rmd_motor::ReadGainDatas()
 {
 
     reference_data[0] = 0x30 & 0xFF;
+    reference_data[1] = 0x00 & 0xFF;
+    reference_data[2] = 0x00 & 0xFF;
+    reference_data[3] = 0x00 & 0xFF;
+    reference_data[4] = 0x00 & 0xFF;
+    reference_data[5] = 0x00 & 0xFF;
+    reference_data[6] = 0x00 & 0xFF;
+    reference_data[7] = 0x00 & 0xFF;
+
+}
+
+void rmd_motor::ReadMultiturnAngle()
+{
+
+    reference_data[0] = 0x92 & 0xFF;
     reference_data[1] = 0x00 & 0xFF;
     reference_data[2] = 0x00 & 0xFF;
     reference_data[3] = 0x00 & 0xFF;

@@ -73,13 +73,14 @@ void *rt_motion_thread(void *arg){
 
         else if(thread_loop_count > 4000) {
 
-            reference = 20*sin((motion_time));
-            motor_ctrl.SetPosition(8000, reference*DEG2RAD);
+            // reference = 20*sin((motion_time));
+            // motor_ctrl.SetPosition(8000, reference*DEG2RAD);
             // reference = 1*sin((motion_time)/0.3);
             // _DEV_MC[0].SetTorqueData( _DEV_MC[0].JointSpacePD(10.0,0.,reference/RAD2DEG) );
             // motor_ctrl.SetTorque( reference );
             // motor_ctrl.SetTorque( 0 );
             // _DEV_MC[0].SetVelocityDta( 8000.*sin(control_time/0.3) );
+            motor_ctrl.ReadMultiturnAngle();
 
             // // Trajectory fixed // //
             // for(size_t i=0;i<NUM_OF_ACTUATORS;i++) { 

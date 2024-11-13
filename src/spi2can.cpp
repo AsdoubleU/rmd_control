@@ -141,6 +141,11 @@ void *spi2can::spi2can_thread(void *arg){
                         else _DEV_MC[bno].UpdateRxData2();
                         _DEV_MC[bno].count_A1++;
                     }
+                    else if(recv_data1[0] == 0x92){
+                        for(int j=0; j<dlc; j++) _DEV_MC[bno].feedback_data[j] = recv_data1[j];
+                        _DEV_MC[bno].UpdateMultiturnAngle();
+                        _DEV_MC[bno].count_A1++;
+                    }
                     else if (recv_data1[0] == 0x30){
                         for(int j=0; j<dlc; j++) _DEV_MC[bno].feedback_data[j] = recv_data1[j];
                         _DEV_MC[bno].UpdatePidData();

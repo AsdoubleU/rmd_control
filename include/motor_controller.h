@@ -48,6 +48,7 @@ public:
   void EnableFilter()                          { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].EnableFilter(); } }
   void SetInitialTheta()                       { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetInitialTheta(); } }
   void ReadGainDatas()                         { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].ReadGainDatas(); } }
+  void ReadMultiturnAngle()                    { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].ReadMultiturnAngle(); } }
   void PrintGainDatas()                        { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].PrintGainDatas(); } }
 };
 

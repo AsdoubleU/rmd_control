@@ -49,15 +49,18 @@ public:
     void    UpdateRxData(void);
     void    UpdateRxData2(void);
     void    UpdatePidData(void);
+    void    UpdateMultiturnAngle(void);
     void    SetTorqueData(float);
     void    SetVelocityData(float);
     void    SetPositionData(float, float);
     void    SetGainDatas(float, float, float);
     void    ReadGainDatas();
+    void    ReadMultiturnAngle();
     void    PrintGainDatas();
     void    SetInitialTheta() { initial_theta = joint_theta; }
     void    JointSpacePD(float, float, float, float);
     float   GetTheta() { return joint_theta; }
+    float   GetMultiturnTheta() {return multiturn_theta;}
     float   GetThetaV3();
     float   GetThetaDot() { return joint_velocity; }
     float   GetTorque() { return joint_torque; }
@@ -67,6 +70,7 @@ private:
 
     float   joint_velocity = 0;
     float   joint_theta = 0;
+    float   multiturn_theta = 0;
     float   joint_torque = 0;
     float   joint_torque_old;
     float   torque_data_old;

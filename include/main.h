@@ -6,6 +6,7 @@
 #include <sensor_msgs/JointState.h>
 #include <ros/node_handle.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Float64MultiArray.h>
 
 #define RAD2DEG 57.2957914
 #define DEG2RAD 0.01745329
@@ -30,10 +31,9 @@ TrajectoryGenerator traj[NUM_OF_RMD];
 
 ros::Publisher p_reference;
 ros::Publisher p_joint_state;
+ros::Publisher p_multiturn_angle;
 
-std_msgs::Float64 m_angle[24];
-std_msgs::Float64 m_angular_velocity[24];
-std_msgs::Float64 m_torque[24];
+std_msgs::Float64MultiArray m_multiturn_angle;
 std_msgs::Float64 m_reference;
 
 int main(int argc, char *argv[])
@@ -53,12 +53,14 @@ int main(int argc, char *argv[])
 
     p_reference = node_handle_.advertise<std_msgs::Float64>("/reference/",1);
     p_joint_state = node_handle_.advertise<sensor_msgs::JointState>("/rmd_joint_states",1);
+    p_multiturn_angle = node_handle_.advertise<std_msgs::Float64MultiArray>("/rmd_multiturn_angle",1);
 
     sensor_msgs::JointState m_joint_state;
     m_joint_state.name.resize(NUM_OF_RMD);
     m_joint_state.position.resize(NUM_OF_RMD);
     m_joint_state.velocity.resize(NUM_OF_RMD);
     m_joint_state.effort.resize(NUM_OF_RMD);
+    m_multiturn_angle.data.resize(NUM_OF_RMD);
     for(size_t i=0;i<NUM_OF_RMD;i++){ m_joint_state.name[i] = "joint_" + std::to_string(i+1); }
 
     const char* data_path = DATAPATH;
@@ -86,6 +88,7 @@ int main(int argc, char *argv[])
             m_joint_state.position[i] = _DEV_MC[i].GetTheta()*RAD2DEG;
             m_joint_state.velocity[i] = _DEV_MC[i].GetThetaDot()*RAD2DEG;
             m_joint_state.effort[i] = _DEV_MC[i].GetTorque();
+            m_multiturn_angle.data[i] = _DEV_MC[i].GetMultiturnTheta()*RAD2DEG;
         }
         
         // fprintf(ANGLE, "\n");
@@ -93,6 +96,7 @@ int main(int argc, char *argv[])
         // fprintf(TORQUE, "\n");
 
         p_joint_state.publish(m_joint_state);
+        p_multiturn_angle.publish(m_multiturn_angle);
 
         ros::spinOnce();
         loop_rate.sleep();
