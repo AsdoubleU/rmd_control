@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
             m_joint_state.position[i] = _DEV_MC[i].GetTheta()*RAD2DEG;
             m_joint_state.velocity[i] = _DEV_MC[i].GetThetaDot()*RAD2DEG;
             m_joint_state.effort[i] = _DEV_MC[i].GetTorque();
-            m_multiturn_angle.data[i] = _DEV_MC[i].GetMultiturnTheta()*RAD2DEG;
+            m_multiturn_angle.data[i] = _DEV_MC[i].GetMultiturnTheta();
         }
         
         // fprintf(ANGLE, "\n");

@@ -29,27 +29,20 @@ void rmd_motor::UpdateRxData(void)
     joint_velocity = velLPF.Filter(joint_velocity,10)*DATA2RAD;
 
     // joint angle
-    int temp_encoder = (int)(feedback_data[6] | (feedback_data[7]<<8));
+    int16_t temp_encoder = (int16_t)(feedback_data[6] | (feedback_data[7]<<8));
+    temp_encoder &= 0x3FFF;
 
-    float temp_theta = temp_encoder / data_to_radian;
-    float incremental_theta{0};
-    
-    if(initialize_position){
-        joint_theta = joint_initial_position;
-        initialize_position = false;
+    if (is_first_run) {
+        temp_encoder_last = temp_encoder;
+        is_first_run = false;
+        return;
     }
-    else{
-        if(temp_encoder > 15383 && temp_encoder_last < 1000) count_overflow--;
-        else if (temp_encoder < 1000 && temp_encoder_last > 15383) count_overflow++;
-        temp_theta = temp_encoder + count_overflow * 16383;
-    }  
 
-    if (temp_theta > 589788) count_overflow = 0;
-    else if (temp_theta < -589788) count_overflow = 0;
-
+    int16_t delta_encoder = temp_encoder - temp_encoder_last;
+    if (delta_encoder > resolution / 2) delta_encoder -= resolution;
+    else if (delta_encoder < -resolution / 2) delta_encoder += resolution;
+    joint_theta += ((float) delta_encoder * (2.0 * M_PI / resolution)) * data_to_radian;
     temp_encoder_last = temp_encoder;
-    joint_theta = temp_theta * actuator_direction * data_to_radian; 
-    if (joint_theta > 7 || joint_theta < -7) { joint_theta = 0; }
 
 }
 
@@ -98,20 +91,22 @@ void rmd_motor::UpdatePidData(void)
 
 void rmd_motor::UpdateMultiturnAngle(void)
 {
-    int32_t theta = 0x00000000000000;
+    int64_t theta = 0x00000000000000;
     theta = theta | (feedback_data[7] << 48);
     theta = theta | (feedback_data[6] << 40);
     theta = theta | (feedback_data[5] << 32);
     theta = theta | (feedback_data[4] << 24);
     theta = theta | (feedback_data[3] << 16);
     theta = theta | (feedback_data[2] << 8);
-    theta = theta | (feedback_data[1]);
+    theta = theta | (feedback_data[1]); 
+    
+    multiturn_theta = (int) theta/1000.;
     
     if(theta & 0x80000000000000) {
-        multiturn_theta = (int)(-((~theta & 0xffffffffffffff) + 1));
+        multiturn_theta = (int)(-((~theta & 0xffffffffffffff) + 1))/1000.;
     }
     else {
-        multiturn_theta = (int)theta;
+        multiturn_theta = (int)theta/1000.;
     }
 }
 
@@ -256,6 +251,18 @@ void rmd_motor::SetGainDatas(float angle_kp, float angle_ki, float angle_kd)
     reference_data[6] = (kd_data     ) & 0xFF;
     reference_data[7] = (kd_data >> 8) & 0xFF;
 
+}
+
+void rmd_motor::SetAngleData()
+{
+    reference_data[0] = 0x19 & 0xFF;
+    reference_data[1] = 0x00 & 0xFF;
+    reference_data[2] = 0x00 & 0xFF;
+    reference_data[3] = 0x00 & 0xFF;
+    reference_data[4] = 0x00 & 0xFF;
+    reference_data[5] = 0x00 & 0xFF;
+    reference_data[6] = 0x00 & 0xFF;
+    reference_data[7] = 0x00 & 0xFF;
 }
 
 void rmd_motor::ReadGainDatas()

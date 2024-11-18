@@ -3,7 +3,7 @@
 
 #include "shared_memory.h"
 
-#define   DATA_TO_RADIAN 1.065329236946157e-5
+#define   DATA_TO_RADIAN 0.0279
 #define   FILTER_WINDOW_SIZE  20
 #define   NUM_OF_ACTUATORS    24
 #define   NUM_OF_RMD          24
@@ -42,6 +42,8 @@ public:
   void SetTorque(VectorXd tau)                 { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetTorqueData(tau[i]); } }
   void SetTorque(float tau)                    { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetTorqueData(tau); } }
   void SetPosition(float max_speed, float pos) { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetPositionData(max_speed, pos); } }
+  void SetAngleDatas()                         { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetAngleData(); } }
+  void SetZeroAngles()                         { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].SetZeroAngle(); } }
   void EnableMotor();
   void DisableMotor();
   void StopMotor()                             { for(uint8_t i=0; i<NUM_OF_RMD; i++) { _DEV_MC[i].StopMotor(); } }

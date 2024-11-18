@@ -9,7 +9,7 @@
 
 #define PI 3.141592
 #define RAD2COMMAND 1031.32
-#define DATA2RAD    0.00523333
+#define DATA2RAD    0.0279
 
 class rmd_motor
 {
@@ -54,6 +54,8 @@ public:
     void    SetVelocityData(float);
     void    SetPositionData(float, float);
     void    SetGainDatas(float, float, float);
+    void    SetAngleData();
+    void    SetZeroAngle() {zero_angle = joint_theta;}
     void    ReadGainDatas();
     void    ReadMultiturnAngle();
     void    PrintGainDatas();
@@ -69,7 +71,8 @@ private:
     NumericalTool::LowPassFilter velLPF;
 
     float   joint_velocity = 0;
-    float   joint_theta = 0;
+    float   joint_theta = 0.0f;
+    float   pre_joint_theta = 0;
     float   multiturn_theta = 0;
     float   joint_torque = 0;
     float   joint_torque_old;
@@ -78,6 +81,7 @@ private:
     float   angle_pid_kp;
     float   angle_pid_ki;
     float   angle_pid_kd;
+    float   zero_angle = 0;
 
     float   motor_theta_last;
     float   temp_encoder_last;
@@ -86,7 +90,10 @@ private:
     float   joint_theta_92;
     float   joint_theta_offset_92;
 
+    float   resolution = 16384.0f;
+
     bool    is_theta_initialize = false;
+    bool    is_first_run = true;
 };
 
 #endif // RMD_MOTOR_H
