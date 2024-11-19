@@ -72,6 +72,7 @@ private:
 
     float   joint_velocity = 0;
     float   joint_theta = 0.0f;
+    float   temp_joint_theta = 0.0f;
     float   pre_joint_theta = 0;
     float   multiturn_theta = 0;
     float   joint_torque = 0;

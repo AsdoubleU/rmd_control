@@ -41,7 +41,8 @@ void rmd_motor::UpdateRxData(void)
     int16_t delta_encoder = temp_encoder - temp_encoder_last;
     if (delta_encoder > resolution / 2) delta_encoder -= resolution;
     else if (delta_encoder < -resolution / 2) delta_encoder += resolution;
-    joint_theta += ((float) delta_encoder * (2.0 * M_PI / resolution)) * data_to_radian;
+    temp_joint_theta += ((float) delta_encoder * (2.0 * M_PI / resolution)) * data_to_radian;
+    joint_theta = temp_joint_theta - zero_angle;
     temp_encoder_last = temp_encoder;
 
 }
